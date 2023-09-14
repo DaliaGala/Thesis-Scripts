@@ -1,0 +1,95 @@
+---
+title: "NMJ_data_analysis_Repo_glial_areas_Kstim"
+output: pdf_document
+date: "2023-09-12"
+editor_options: 
+  chunk_output_type: console
+---
+
+# R ENVIRONMENT 
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(rstatix)
+library(ggplot2)
+library(ggbeeswarm)
+library(ggpubr)
+library(readr)
+`%!in%` = Negate(`%in%`)
+options(scipen = 999)
+```
+
+#Read CSV 
+```{r}
+glia_neuron_pre_post <- read_csv("./Data/CH5_Glial_neuronal_areas_comparison/kstim_glia_area_neuron_pre_post_stim.csv")
+```
+
+#Check if normal
+```{r}
+glia_neuron_pre_post %>%
+  group_by(condition, stimulated) %>%
+  # shapiro_test(sum_Area_HRP) %>%
+  shapiro_test(sum_Area_glia) %>%
+  add_significance()
+```
+
+# Calculate statistics
+```{r}
+stats_pre_post <- glia_neuron_pre_post %>%
+  group_by(condition) %>%
+  # wilcox_test(sum_Area_HRP ~ stimulated) %>%
+  wilcox_test(sum_Area_glia ~ stimulated) %>%
+  add_significance()
+```
+
+# Plotting - HRP
+```{r}
+glia_neuron_pre_post$stimulated <- factor(glia_neuron_pre_post$stimulated, levels = c("Unstimulated","Stimulated"))
+
+ggplot(glia_neuron_pre_post, aes(x = stimulated, y = sum_Area_HRP)) +
+  geom_violin(color = 'NA', fill = "gray70", trim = FALSE, alpha = 0.30) +
+  geom_quasirandom(width = 0.2, size = 0.4) +
+  geom_pointrange(stat = "summary", colour = "#ff7251", size = 0.5) +
+  stat_compare_means(comparisons = list(c("Unstimulated", "Stimulated")), method = "wilcox.test", label = "p.signif") +
+  facet_wrap(~ condition) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 12),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Axon projection area comparison pre- and post-stimulation",
+       y = expression(paste("Area (",mu, m^2,")",sep="")))
+
+# ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/CH5_Pre_post_stim_areas_KStim_plus_smFISH_glia_new.pdf",
+#        width = 10 * 0.52, height = 10 * 0.52,
+#        device = cairo_pdf)
+```
+
+# Plotting - glia
+```{r}
+glia_neuron_pre_post$stimulated <- factor(glia_neuron_pre_post$stimulated, levels = c("Unstimulated","Stimulated"))
+
+ggplot(glia_neuron_pre_post, aes(x = stimulated, y = sum_Area_glia)) +
+  geom_violin(color = 'NA', fill = "gray70", trim = FALSE, alpha = 0.30) +
+  geom_quasirandom(width = 0.2, size = 0.4) +
+  geom_pointrange(stat = "summary", colour = "#ff7251", size = 0.5) +
+  stat_compare_means(comparisons = list(c("Unstimulated", "Stimulated")), method = "wilcox.test", label = "p.signif") +
+  facet_wrap(~ condition) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 12),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Glial projection area comparison pre- and post-stimulation",
+       y = expression(paste("Area (",mu, m^2,")",sep="")))
+
+# ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/CH5_Pre_post_stim_areas_KStim_plus_smFISH_glia_new.pdf",
+#        width = 10 * 0.52, height = 10 * 0.52,
+#        device = cairo_pdf)
+```
+

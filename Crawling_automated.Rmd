@@ -1,0 +1,430 @@
+---
+title: "BioImageOperation"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+Analysis QMD for BioImageOperation output used in the larval crawling assay
+
+## Environment
+
+```{r}
+library(tidyverse)
+library(trajr)
+library(qs)
+library(skimr)
+library(rstatix)
+library(ggbeeswarm)
+library(hrbrthemes)
+library(patchwork)
+library(ggpubr)
+library(ggplot2)
+library(ggforce)
+library(viridis)
+```
+
+## Prepare Analysis Dataframe
+
+### Import raw 'Tracks' data 
+
+```{r}
+bio_output_dir <- "./OK6_gs2/Results/"
+bio_outputs <- list.files(bio_output_dir, pattern = ".csv", full.names = TRUE)
+
+bio_raw <- future_map_dfr(bio_outputs, function(x){
+  filename <- basename(x)
+  tracks <- read_csv(x) %>%
+    mutate(filename = filename)
+})
+
+bio_raw <- bio_raw %>%
+  mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label))
+
+qsave(bio_raw %>% dplyr::select(-contour), "./OK6_gs2/Results/bio_raw.qs")
+
+# bio_raw <- qread("./Mdr65/Results/bio_raw.qs")
+```
+
+### Filter for high confidence larvae
+
+```{r}
+## Filter for those tracked in the first 5 seconds 
+candidate_larvae1 <- bio_raw %>%
+  filter(time < 5) %>%
+  group_by(larva_id) %>%
+  summarise(frequency = n()) %>%
+  mutate(mean_frequency = mean(frequency)) %>%
+  filter(frequency >= mean_frequency) %>%
+  ungroup() %>%
+  pull(larva_id)
+
+## Filter for those that are flash-larvae
+candidate_larvae2 <- bio_raw %>%
+  filter(larva_id %in% candidate_larvae1) %>%
+  arrange(larva_id, time) %>%
+  group_by(larva_id) %>%
+  filter(cumsum(v >= 50) < 1) %>%
+  ungroup() %>%
+  pull(larva_id) %>% unique()
+
+## Take at most centre n number of larvae
+centre_x <- 470
+centre_y <- 350
+max_number_of_larvae <- 5
+
+candidate_larvae3 <- bio_raw %>%
+  filter(larva_id %in% candidate_larvae1) %>%
+  filter(frame == 2) %>%
+  mutate(dist_from_centre = (centre_x - x)^2 + (centre_y - y)^2) %>%
+  group_by(filename) %>%
+  slice_min(dist_from_centre, n = max_number_of_larvae) %>%
+  ungroup() %>%
+  pull(larva_id) %>% unique()
+
+## Filter for those tracked for at least 2 seconds (e.g. 60 frames for 30 fps)
+candidate_larvae4 <- bio_raw %>%
+  filter(larva_id %in% candidate_larvae3) %>%
+  group_by(larva_id) %>%
+  summarise(frames = n()) %>%
+  ungroup() %>%
+  filter(frames >= 60) %>%
+  pull(larva_id) %>% unique()
+
+## Filter for abrupt decrease in area (removes the ones kept tracked even when the animal reaches the edge)
+min_area_threshold <- 75
+candidate_larvae5 <- bio_raw %>%
+  filter(larva_id %in% candidate_larvae4) %>%
+  arrange(larva_id, time) %>%
+  group_by(larva_id) %>%
+  filter(cumsum(area <= min_area_threshold) < 1) %>%
+  ungroup() %>%
+  pull(larva_id) %>% unique()
+
+## Filter for those that teleported & merged ones
+candidate_larvae6 <- bio_raw %>%
+  filter(larva_id %in% candidate_larvae5) %>%
+  arrange(larva_id, time) %>%
+  group_by(larva_id) %>%
+  mutate(Jumped = case_when(dist >= 5 ~ TRUE, TRUE ~ FALSE)) %>%
+  filter(cumsum(Jumped)<1) %>%
+  filter(!is_merged == TRUE) %>%
+  ungroup()
+
+##Filter for ones which crawl along the edge - stop tracking past some radius distance
+radius <- 310
+bio_within_radius <- candidate_larvae6 %>%
+  arrange(larva_id, time) %>%
+  group_by(larva_id) %>%
+  mutate("Distance_from_Centre" = sqrt((x - centre_x)^2 + (y - centre_y)^2)) %>%
+  mutate(Include = case_when(Distance_from_Centre >= radius ~ TRUE, TRUE ~ FALSE)) %>%
+  filter(cumsum(Include)<1) %>%
+  ungroup()
+
+## Filter for those tracked for too little frames
+candidate_larvae7 <- bio_within_radius %>%
+  group_by(larva_id) %>%
+  summarise(n = length(unique(time)))%>%
+  filter(n > 2) %>%
+  pull(larva_id) %>% unique()
+
+## Get confidence filtered dataframe
+bio_confident <- bio_within_radius %>%
+  filter(larva_id %in% candidate_larvae7) 
+
+## Check how many confident larvae were tracked per video 
+bio_confident %>%
+  group_by(filename) %>%
+  summarise(n = length(unique(track_label))) -> tmp1
+
+to_remove <- c("OK6_CTRL6_larva_6", "OK6_CTRL7_larva_21", "OK6_CTRL7_larva_22", "OK6_GD4_larva_2", "OK6_KK4_larva_10")
+
+# to_remove <- c("Nrv2_Control_8_larva_2", "Nrv2_lac_GD_7_larva_5", "Nrv2_lac_GD_8_larva_9", "Nrv2_lac_GD_8_larva_4")
+
+# to_remove <- c("Mdr_control_3_larva_2", "Mdr_lac_GD_2_larva_15", "Mdr_lac_GD_2_larva_3")
+
+bio_confident_after_removed <- bio_confident %>%
+  filter(!(larva_id %in% to_remove))
+
+qsave(bio_confident_after_removed, "./OK6_gs2/Results/bio_confident_filtered.qs")
+```
+
+# Read processed data
+```{r}
+bio_confident_after_removed <- qread("./Data/CH5_Crawling_assay_automated/OK6_bio_confident_filtered.qs")
+```
+
+
+### Perform analysis
+```{r}
+perform_analysis <- function(x){
+  tracks_confident <- x
+  
+  mean_speed <- tracks_confident %>%
+    filter(!is_merged == TRUE) %>%
+  group_by(genotype, larva_id) %>%
+  slice_max(dist_tot) %>%
+  slice_max(time) %>%
+  ungroup() %>%
+  mutate(mean_speed = dist_tot/time) %>%
+  dplyr::select(genotype, larva_id, mean_speed)
+  
+  index_straightness <- tracks_confident %>%
+  group_by(genotype, larva_id) %>%
+  filter(!is_merged == TRUE) %>%
+  slice_max(dist_tot) %>%
+  ungroup() %>%
+  mutate(index_straightness = dist_origin/dist_tot) %>%
+  dplyr::select(genotype, larva_id, index_straightness)
+  
+  get_trajDC <- function(x, y, time){
+    tibble(x = x,
+           y = y,
+           time = time) %>%
+      TrajFromCoords() %>%
+      TrajSmoothSG(p = 1, n = 3) %>%
+      TrajDirectionalChange() %>% 
+      mean()
+  }
+  get_trajSDDC <- function(x, y, time){
+    tibble(x = x,
+           y = y,
+           time = time) %>%
+      TrajFromCoords() %>%
+      TrajSmoothSG(p = 1, n = 3) %>%
+      TrajDirectionalChange() %>% 
+      sd()
+  }
+  
+  DC <- tracks_confident %>%
+    group_by(genotype, larva_id) %>%
+    summarise(DC = get_trajDC(x, y, time),
+              SDDC = get_trajSDDC(x, y, time))
+  
+  output <- full_join(mean_speed, index_straightness, by = c("genotype", "larva_id")) %>%
+    full_join(DC, by = c("genotype", "larva_id")) %>%
+    return()
+}
+
+# OK6
+bio_confident_anno <- bio_confident_after_removed %>%
+  mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
+  mutate(genotype = case_when(
+    str_detect(larva_id, "OK6") & str_detect(larva_id, "CTRL") ~ "OK6-GAL4 Control",
+    str_detect(larva_id, "OK6") & str_detect(larva_id, "GD") ~ "OK6-GAL4 > Lac RNAi",
+    str_detect(larva_id, "OK6") & str_detect(larva_id, "KK") ~ "OK6 KK",
+    str_detect(larva_id, "Repo") & str_detect(larva_id, "Control") ~ "Repo-GAL4 Control",
+    str_detect(larva_id, "Repo") & str_detect(larva_id, "GD") ~ "Repo-GAL4 > Lac RNAi"
+  )) %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  filter(genotype != "OK6 KK")
+
+bio_summary <- perform_analysis(bio_confident_anno) %>%
+  distinct() %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  mutate(mean_speed_real_units = mean_speed * 85/650)
+
+# Nrv2
+# bio_confident_anno <- bio_confident_after_removed %>%
+#   mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
+#   mutate(genotype = case_when(
+#     str_detect(larva_id, "Nrv2") & str_detect(larva_id, "Control") ~ "Nrv2-GAL4 Control",
+#     str_detect(larva_id, "Nrv2") & str_detect(larva_id, "GD") ~ "Nrv2-GAL4 > Lac RNAi",
+#     str_detect(larva_id, "Nrv2") & str_detect(larva_id, "KK") ~ "Nrv2 KK",
+#     str_detect(larva_id, "Repo") & str_detect(larva_id, "Control") ~ "Repo-GAL4 Control",
+#     str_detect(larva_id, "Repo") & str_detect(larva_id, "GD") ~ "Repo-GAL4 > Lac RNAi"
+#   )) %>%
+#   mutate(replicate = str_extract(larva_id, "\\d")) %>%
+#   filter(genotype != "Nrv2 KK")
+# 
+# bio_summary <- perform_analysis(bio_confident_anno) %>%
+#   distinct() %>%
+#   mutate(replicate = str_extract(larva_id, "\\d")) %>%
+#   mutate(mean_speed_real_units = mean_speed * 85/1000)
+
+# Mdr65 
+# bio_confident_anno <- bio_confident_after_removed %>%
+#   mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
+#   mutate(genotype = case_when(
+#     str_detect(larva_id, "Mdr") & str_detect(larva_id, "control") ~ "Mdr65-GAL4 Control",
+#     str_detect(larva_id, "Mdr") & str_detect(larva_id, "GD") ~ "Mdr65-GAL4 > Lac RNAi",
+#     str_detect(larva_id, "Mdr") & str_detect(larva_id, "KK") ~ "Mdr65 KK",
+#     str_detect(larva_id, "Repo") & str_detect(larva_id, "control") ~ "Repo-GAL4 Control",
+#     str_detect(larva_id, "Repo") & str_detect(larva_id, "GD") ~ "Repo-GAL4 > Lac RNAi"
+#   )) %>%
+#   mutate(replicate = str_extract(larva_id, "\\d")) %>%
+#   filter(genotype != "Mdr65 KK")
+# 
+# bio_summary <- perform_analysis(bio_confident_anno) %>%
+#   distinct() %>%
+#   mutate(replicate = str_extract(larva_id, "\\d")) %>%
+#   mutate(mean_speed_real_units = mean_speed * 85/650)
+
+# 46F
+# bio_confident_anno <- bio_confident_after_removed %>%
+#   mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
+#   mutate(genotype = case_when(
+#     str_detect(larva_id, "46F") & str_detect(larva_id, "control") ~ "46F-GAL4 Control",
+#     str_detect(larva_id, "46F") & str_detect(larva_id, "GD") ~ "46F-GAL4 > Lac RNAi",
+#     str_detect(larva_id, "46F") & str_detect(larva_id, "KK") ~ "46F KK",
+#     str_detect(larva_id, "Repo") & str_detect(larva_id, "control") ~ "Repo-GAL4 Control",
+#     str_detect(larva_id, "Repo") & str_detect(larva_id, "GD") ~ "Repo-GAL4 > Lac RNAi"
+#   )) %>%
+#   mutate(replicate = str_extract(larva_id, "\\d")) %>%
+#   filter(genotype != "46F KK")
+# 
+# bio_summary <- perform_analysis(bio_confident_anno) %>% 
+#   distinct() %>%
+#   mutate(replicate = str_extract(larva_id, "\\d")) %>%
+#   mutate(mean_speed_real_units = mean_speed * 85/1950)
+
+bio_summary %>%
+  group_by(genotype) %>%
+  summarise(n = n()) %>% 
+  arrange(desc(n))
+
+```
+
+## Create summary and perform stats
+```{r}
+bio_summary %>%
+  group_by(genotype) %>% 
+  shapiro_test(mean_speed_real_units) %>%
+  add_significance()
+
+bio_summary %>% 
+  dunn_test(mean_speed_real_units ~ genotype) %>%
+  add_significance() %>% as_tibble() -> tmp
+
+# OK6
+stat_comparisons <- list(
+  c("OK6-GAL4 Control", "OK6-GAL4 > Lac RNAi")
+)
+
+# Nrv2
+# stat_comparisons <- list(
+#   c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi"),
+#   c("Repo-GAL4 Control", "Nrv2-GAL4 Control"),
+#   c("Nrv2-GAL4 Control", "Nrv2-GAL4 > Lac RNAi")
+# )
+
+# Mdr65
+# stat_comparisons <- list(
+#   c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi"),
+#   c("Repo-GAL4 Control", "Mdr65-GAL4 Control"),
+#   c("Mdr65-GAL4 Control", "Mdr65-GAL4 > Lac RNAi")
+# )
+
+# 46F 
+# stat_comparisons <- list(
+#   c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi"),
+#   c("Repo-GAL4 Control", "46F-GAL4 Control"),
+#   c("46F-GAL4 Control", "46F-GAL4 > Lac RNAi")
+# )
+```
+
+## Plot analysis to PDF
+```{r}
+things_to_plot <- c("mean_speed_real_units", "index_straightness", "DC", "SDDC") %>% set_names()
+
+colors <- viridisLite::inferno(6)
+
+# Exclude the undesired color
+colors <- colors[colors != "#FCFFA4FF"]
+colors <- colors[colors != "#000004FF"]
+
+# Define the desired order Nrv2
+ordered_levels <- c("OK6-GAL4 Control", "OK6-GAL4 > Lac RNAi")
+
+# Define the desired order Nrv2
+# ordered_levels <- c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi", "Nrv2-GAL4 Control", "Nrv2-GAL4 > Lac RNAi")
+
+# Define the desired order Mdr65
+# ordered_levels <- c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi", "Mdr65-GAL4 Control", "Mdr65-GAL4 > Lac RNAi")
+
+bio_summary <- bio_summary %>%
+  mutate(genotype = factor(genotype, levels = ordered_levels))
+
+
+pdf("./plot_02092023_OK6_analysis.pdf", width = 7, height = 5)
+map(things_to_plot, ~ bio_summary %>%
+  ggplot(aes_string(x = "genotype", y = .x, fill = "genotype")) + 
+  geom_violin(color = 'NA', alpha = 0.4) +
+  geom_quasirandom(width = 0.3, alpha = 0.9, size = 2, stroke = 0) +
+  scale_fill_manual(values = colors) +
+  labs(title = .x,
+       x = "",
+       y = "Measure") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none") + 
+  stat_compare_means(comparisons = stat_comparisons, method = "wilcox.test", label = "p.signif"))
+dev.off()
+```
+
+#Plot all tracks to pdf
+```{r}
+
+centre_x <- 470
+centre_y <- 350
+radius = 320
+
+
+# Create a dataframe with circle attributes
+df <- data.frame(
+  centre_x = centre_x,
+  centre_y = centre_y,
+  radius = radius
+  )
+
+# OK6
+bio_confident_anno$genotype <- factor(bio_confident_anno$genotype,
+                                      levels = c("OK6-GAL4 Control",
+                                                 "OK6-GAL4 > Lac RNAi"))
+
+# Mdr65
+# bio_confident_anno$genotype <- factor(bio_confident_anno$genotype,
+#                                       levels = c("Repo-GAL4 Control",
+#                                                  "Repo-GAL4 > Lac RNAi",
+#                                                  "Nrv2-GAL4 Control",
+#                                                  "Nrv2-GAL4 > Lac RNAi"))
+  
+# Mdr65
+# bio_confident_anno$genotype <- factor(bio_confident_anno$genotype, 
+#                                       levels = c("Repo-GAL4 Control", 
+#                                                  "Repo-GAL4 > Lac RNAi", 
+#                                                  "Mdr65-GAL4 Control", 
+#                                                  "Mdr65-GAL4 > Lac RNAi"))
+
+# 46F
+# bio_confident_anno$genotype <- factor(bio_confident_anno$genotype, 
+#                                       levels = c("Repo-GAL4 Control", 
+#                                                  "Repo-GAL4 > Lac RNAi", 
+#                                                  "46F-GAL4 Control", 
+#                                                  "46F-GAL4 > Lac RNAi"))
+
+plot <- ggplot() +
+  geom_path(data = bio_confident_anno, mapping = aes(x = x, y = y, group = larva_id, color = time)) +
+  geom_circle(data = df, mapping = aes(x0 = centre_x, y0 = centre_y, r = radius)) +
+  facet_wrap(~genotype) +
+  ggtitle("Motion tracks of larval locomotion assay for Lac knockdown in motor neuron") +
+  xlab("Distance (mm)") +
+  ylab("Distance (mm)") +
+  scale_color_gradientn(colors = plasma(100), name = "Time(s)") +
+  theme_minimal() +
+  theme(
+    text = element_text(size = 8),
+    plot.title = element_text(size = 8),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    axis.line = element_blank())+
+  coord_fixed()
+
+plot
+
+ggsave("./plot_02092023_OK6_tracks_plasma.pdf", width = 7 * 0.7, height = 6 * 0.6, device = cairo_pdf)
+```
+

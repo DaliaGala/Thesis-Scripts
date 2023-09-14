@@ -1,0 +1,80 @@
+---
+title: "NMJ_data_analysis_smFISH"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# R ENVIRONMENT 
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(rstatix)
+library(ggplot2)
+library(ggbeeswarm)
+library(ggpubr)
+library(readr)
+library(dplyr)
+library(stringr)
+library(readr)
+`%!in%` = Negate(`%in%`)
+options(scipen = 999)
+```
+
+# ANALYSIS
+
+# Import Lac RNAi knockdown data
+```{r}
+df <- read_csv("./Data/CH5_Lac_RNAi_KStim_smFISH/final_results_lac_KD.csv")
+```
+
+# Clean area data
+```{r}
+df <- df %>%
+    mutate(condition = case_when(
+    str_detect(Filename, "control") ~ "Control",
+    str_detect(Filename, "_lac_RNAi_") ~ "Lac RNAi")) %>%
+  rename(no_mRNA_molecules = "Common Coordinates")
+```
+
+#Check if normal
+```{r}
+df %>%
+  group_by(condition) %>%
+  shapiro_test(no_mRNA_molecules) %>%
+  add_significance()
+```
+
+#Run stats
+```{r}
+stats <- df %>%
+  wilcox_test(no_mRNA_molecules ~ condition) %>%
+  add_significance()
+```
+
+# Plot smFISH data
+```{r}
+df$condition <- factor(df$condition, levels = c("Control", "Lac RNAi"))
+
+ggplot(df, aes(x = condition, y = no_mRNA_molecules)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.7, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Control", "Lac RNAi")), method = "wilcox.test", label = "p.signif") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 12),
+        axis.title.y = element_text(size = 8),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Lac mRNA molecules in NMJ glial projections",
+       y = "Number of Lac mRNA molecules in glial projections")
+
+# ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/CH5_Lac_RNAi_control_Lac_molecules.pdf",
+#        width = 10 * 0.4, height = 10 * 0.4,
+#        device = cairo_pdf)
+```
+
+

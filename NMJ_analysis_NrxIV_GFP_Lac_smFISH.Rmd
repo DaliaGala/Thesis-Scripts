@@ -1,0 +1,146 @@
+---
+title: "NMJ_analysis_NrxIV_GFP_Lac_smFISH"
+output: pdf_document
+date: "2023-09-12"
+editor_options: 
+  chunk_output_type: console
+---
+
+# R ENVIRONMENT 
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(rstatix)
+library(ggplot2)
+library(ggbeeswarm)
+library(ggpubr)
+library(readr)
+`%!in%` = Negate(`%in%`)
+```
+
+# ANALYSIS
+
+# Import NrxIV::GFP area data
+```{r}
+file_list = list.files(path = "./Data/CH5_NrxIV_GFP_Lac_smFISH/areas_outputs/", 
+                       pattern = "*.csv", 
+                       full.names = TRUE)
+
+df <- map_df(file_list, ~ read_csv(.x, col_names = TRUE) %>%
+                             mutate(name = str_remove_all(basename(.x), ".csv")))
+df$Label = NULL
+df$...1 = NULL
+```
+
+# Clean up NrxIV::GFP area data
+```{r}
+areas_clean <- df %>%
+  group_by(name) %>%
+  summarise(sum_Area = sum(Area)) %>%
+  ungroup() %>%
+  mutate(
+    condition = case_when(
+      str_detect(name, "_C1") ~ "NrxIV_area",
+      str_detect(name, "_C2") ~ "Axon_terminal_area"
+    ),
+    name = gsub("^Results_Area", "", substr(name, 1, nchar(name) - 7))
+  ) %>%
+  pivot_wider(names_from = condition, values_from = sum_Area)
+```
+
+# Get all NrxIV::GFP NMJ smFISH molecules in the neuron area data
+```{r}
+# Get a list of all CSV files in the directory
+csv_files <- list.files(path ="./Data/CH5_NrxIV_GFP_Lac_smFISH/CSV_Output",
+                        pattern = "*.csv",
+                        full.names = TRUE)
+
+# Function to read a CSV and return its filename and number of rows
+get_file_info <- function(file) {
+  data <- read_csv(file, col_types = cols())
+  return(data.frame(Filename = str_remove_all(basename(file), ".csv"), Number_of_rows = nrow(data)))
+}
+
+# Use the map_df function from purrr to apply the function to each file and bind the results into one dataframe
+result_df <- purrr::map_df(csv_files, get_file_info)
+result_df$Filename <- gsub("_TIF_C3", "", result_df$Filename)
+```
+
+# Import smFISH molecules in glial cells data
+```{r}
+dataframe <- read_csv("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Data/CH5_NrxIV_GFP_Lac_smFISH/final_results_Nrx_IV_Lac_smFISH.csv")
+```
+
+# Create clean df
+```{r}
+clean_molecules <- dataframe %>%
+  mutate(condition = case_when(
+    str_detect(Filename, "_C1") ~ "NrxIV",
+    str_detect(Filename, "_C2") ~ "Axon_terminal")) %>%
+  rename("no_mRNA_molecules" = "Common Coordinates") %>%
+  mutate(Filename = gsub("_TIF_C1.tif", "", Filename)) %>%
+  mutate(Filename = gsub("_TIF_C2.tif", "", Filename))
+
+df_wide_pivot <- clean_molecules %>% 
+  pivot_wider(names_from = condition, values_from = no_mRNA_molecules)
+
+df_wide_pivot$Filename <- sub("ROI_", "", df_wide_pivot$Filename)
+
+merged_df <- full_join(result_df, df_wide_pivot, by = "Filename")
+merged_df <- full_join(merged_df, areas_clean, by = c("Filename" = "name"))
+
+# Rename the column
+colnames(merged_df)[colnames(merged_df) == "Number_of_rows"] <- "Whole_NMJ"
+colnames(merged_df)[colnames(merged_df) == "NrxIV"] <- "BBB"
+
+merged_df <- merged_df %>%
+  mutate(mols_per_neuron = Axon_terminal/Axon_terminal_area) %>%
+  mutate(mols_per_BBB = BBB/NrxIV_area) %>%
+  mutate(BBB_to_axon_ratio_mols = (BBB/Axon_terminal)*100) %>%
+  mutate(BBB_to_axon_ratio_areas = (NrxIV_area/Axon_terminal_area)*100)
+
+df_longer <- merged_df %>%
+  gather(key = "Original_Column", value = "Value", BBB_to_axon_ratio_mols:BBB_to_axon_ratio_areas)
+```
+
+# Check if normal
+```{r}
+df_longer %>%
+  group_by(Original_Column) %>%
+  shapiro_test(Value) %>%
+  add_significance()
+```
+
+# Calculate statistics
+```{r}
+stats <- df_longer %>%
+  t_test(Value ~ Original_Column) %>%
+  add_significance()
+```
+
+# Plotting
+```{r}
+custom_labels <- c("Area ratio (NrxIV::GFP/HRP)", "Lac mRNA molecules ratio")
+
+ggplot(df_longer, aes(x = Original_Column, y = Value)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("BBB_to_axon_ratio_areas", "BBB_to_axon_ratio_mols")), method = "t.test", label = "p.signif") +
+  theme_classic2() +
+  scale_x_discrete(labels = custom_labels)+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 10),
+        axis.title.y = element_text(size = 8),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Lac mRNA molecules in motor neuron terminal and Blood-Brain Barrier",
+       y = "Ratio of measure in Blood-Brain Barrier to motor neuron terminal (%)")
+
+# 
+# ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/NrxIV_GFP_Lac_MRNA_ratios.pdf",
+#        width = 10 * 0.5, height = 10 * 0.38937,
+#        device = cairo_pdf)
+```

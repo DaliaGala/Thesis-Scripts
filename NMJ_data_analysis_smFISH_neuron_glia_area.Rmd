@@ -1,0 +1,184 @@
+---
+title: "NMJ_data_analysis_smFISH_neuron_glia_area"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# R ENVIRONMENT 
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(rstatix)
+library(ggpubr)
+library(stringr)
+`%!in%` = Negate(`%in%`)
+options(scipen = 999)
+```
+
+# ANALYSIS
+
+# Import area of lac::YFP data
+```{r}
+file_list = list.files(path ="./Data/CH5_Lac_YFP_KStim_smFISH/Areas_of_glia_neuron/Areas_intensity_glia/CSVs/", 
+                       pattern = "*.csv", 
+                       full.names = TRUE)
+
+df <- map_df(file_list, ~ read_csv(.x, col_names = TRUE) %>%
+                             mutate(name = str_remove_all(basename(.x), ".csv")))
+```
+
+# Import area of neuron data
+```{r}
+file_list = list.files(path ="./Data/CH5_Lac_YFP_KStim_smFISH/Areas_of_glia_neuron/Areas_HRP/CSVs/", 
+                       pattern = "*.csv", 
+                       full.names = TRUE)
+
+df_HRP <- map_df(file_list, ~ read_csv(.x, col_names = TRUE) %>%
+                             mutate(name = str_remove_all(basename(.x), ".csv")))
+```
+
+# Import background information data (for Lac::YFP protein density only)
+```{r}
+bg_subtraction_df <- read_csv("./Data/CH5_Lac_YFP_KStim_smFISH/KStim_BG_channel_Lac.csv")
+
+bg_df_intensities <- bg_subtraction_df %>%
+  mutate(bg_density = RawIntDen/Area)
+
+mean_bg_density <- mean(bg_df_intensities$bg_density)
+```
+
+# Clean area data - Lac::YFP
+```{r}
+clean <- df %>%
+  group_by(name) %>%
+  summarise(sum_Area = sum(Area), sum_RawIntDen = sum(RawIntDen)) %>%
+  ungroup() %>%
+    mutate(condition = case_when(
+    str_detect(name, "_stim_") ~ "Stimulated",
+    str_detect(name, "unstim_mock") ~ "Mock stimulated",
+    str_detect(name, "unstim_open") ~ "Unstimulated")) %>%
+    filter(condition != "Mock stimulated") %>%
+  mutate(density = ((sum_RawIntDen-(mean_bg_density*sum_Area))/sum_Area))
+```
+
+# Create clean df with density info and correct labels
+```{r}
+long_df <- clean %>%
+  gather(key = "measure", value = "value", sum_Area, density) %>%
+  mutate(measure = recode(measure,
+                          sum_Area = "Area (um^2)",
+                          density = "Lac::YFP signal density (A.U.)"))
+```
+
+#Check if normal
+```{r}
+clean %>%
+  group_by(condition) %>%
+  shapiro_test(density) %>%
+  add_significance()
+
+clean %>%
+  group_by(condition) %>%
+  shapiro_test(sum_Area) %>%
+  add_significance()
+```
+
+# Run stats
+```{r}
+stats_density <- clean %>%
+  wilcox_test(density ~ condition) %>%
+  add_significance()
+
+stats_area <- clean %>%
+  wilcox_test(sum_Area ~ condition) %>%
+  add_significance()
+```
+
+# Plot area and density data for Lac::YFP
+```{r}
+long_df$condition <- factor(long_df$condition, levels = c("Unstimulated","Stimulated"))
+
+# Custom labeller function
+label_math <- function(variable,value){
+  return(list(
+    "Area (um^2)" = expression(paste("Area (", mu, m^2, ")", sep = "")),
+    "Lac::YFP signal density (A.U.)" = "Lac::YFP signal density (A.U.)"
+  )[value])
+}
+
+# Your ggplot code
+ggplot(long_df, aes(x = condition, y = value)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 2) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.7, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Unstimulated", "Stimulated")), method = "wilcox.test", label = "p.signif") +
+  facet_wrap(~ measure, scales = "free_y", labeller = label_math) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 13),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 10))+
+  labs(x = NULL,
+       title = "Lac::YFP area and protein signal intensity comparison",
+       y = NULL)
+
+## Save
+# ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/Lac_YFP_KStim_lac_area_density.pdf",
+#        width = 10 * 0.5, height = 10 * 0.5,
+#        device = cairo_pdf)
+```
+
+# Clean area data - neuron
+```{r}
+clean_HRP <- df_HRP %>%
+  group_by(name) %>%
+  summarise(sum_Area = sum(Area)) %>%
+  ungroup() %>%
+    mutate(condition = case_when(
+    str_detect(name, "_stim_") ~ "Stimulated",
+    str_detect(name, "unstim_mock") ~ "Mock stimulated",
+    str_detect(name, "unstim_open") ~ "Unstimulated")) %>%
+    filter(condition != "Mock stimulated")
+```
+
+#Check if normal
+```{r}
+clean_HRP %>%
+  group_by(condition) %>%
+  shapiro_test(sum_Area) %>%
+  add_significance()
+```
+
+# Run stats
+```{r}
+stats_HRP <- clean_HRP %>%
+  t_test(sum_Area ~ condition) %>%
+  add_significance()
+```
+
+# Plot area data for Lac::YFP HRP areas
+```{r}
+clean_HRP$condition <- factor(clean_HRP$condition, levels = c("Unstimulated", "Stimulated"))
+
+ggplot(clean_HRP, aes(x = condition, y = sum_Area)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.7, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Unstimulated", "Stimulated")), method = "wilcox.test", label = "p.signif") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 14),
+        axis.title.y = element_text(size = 12),
+        axis.text.x = element_text(size = 10))+
+  labs(x = NULL,
+       title = "Lac::YFP axon projection area comparison",
+       y = expression(paste("Area (",mu, m^2,")",sep="")))
+
+# ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/Lac_YFP_KStim_lac_area.pdf",
+#        width = 10 * 0.5, height = 10 * 0.5,
+#        device = cairo_pdf)
+```

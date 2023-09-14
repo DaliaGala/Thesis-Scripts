@@ -1,0 +1,414 @@
+Label,condition,stimulated,sum_Area_glia,sum_Area_HRP
+20220115_Kstim_130122_No1_control_L1_S2L,Control,Stimulated,243.254,822.054
+20220115_Kstim_130122_No1_control_L1_S2R,Control,Stimulated,215.53,786.404
+20220115_Kstim_130122_No1_control_L1_S3R,Control,Stimulated,203.679,800.482
+20220115_Kstim_130122_No1_control_L1_S4L,Control,Stimulated,80.921,562.287
+20220115_Kstim_130122_No1_control_L1_S4R,Control,Stimulated,132.61,414.096
+20220115_Kstim_130122_No1_control_L1_S5L,Control,Stimulated,97.8,550.023
+20220115_Kstim_130122_No1_control_L1_S5R,Control,Stimulated,16.393,322.046
+20220115_Kstim_130122_No1_control_L2_S2L,Control,Stimulated,221.559,839.782
+20220115_Kstim_130122_No1_control_L2_S2R,Control,Stimulated,405.748,821.569
+20220115_Kstim_130122_No1_control_L2_S3L,Control,Stimulated,130.278,479.111
+20220115_Kstim_130122_No1_control_L2_S3R,Control,Stimulated,96.436,426.117
+20220115_Kstim_130122_No1_control_L2_S4L,Control,Stimulated,37.015,373.563
+20220115_Kstim_130122_No1_control_L2_S4R,Control,Stimulated,29.787,338.47
+20220115_Kstim_130122_No1_control_L2_S5L,Control,Stimulated,65.323,298.825
+20220115_Kstim_130122_No1_control_L2_S5R,Control,Stimulated,55.85,297.132
+20220115_Kstim_130122_No1_control_L3_S2L,Control,Stimulated,184.612,523.013
+20220115_Kstim_130122_No1_control_L3_S2R,Control,Stimulated,90.264,437.127
+20220115_Kstim_130122_No1_control_L3_S3L,Control,Stimulated,160.44,490.662
+20220115_Kstim_130122_No1_control_L3_S3R,Control,Stimulated,80.723,264.316
+20220115_Kstim_130122_No1_control_L3_S4L,Control,Stimulated,41.13,323.225
+20220115_Kstim_130122_No1_control_L3_S4R,Control,Stimulated,72.087,307.711
+20220115_Kstim_130122_No1_control_L3_S5L,Control,Stimulated,54.997,251.433
+20220115_Kstim_130122_No1_control_L4_S3R,Control,Stimulated,208.892,809.666
+20220115_Kstim_130122_No1_control_L4_S4R,Control,Stimulated,34.945,242.118
+20220115_Kstim_130122_No1_control_L4_S5R,Control,Stimulated,20.018,184.822
+20220115_Kstim_130122_No1_control_L5_S2L,Control,Stimulated,202.293,638.2
+20220115_Kstim_130122_No1_control_L5_S2R,Control,Stimulated,205.103,913.052
+20220115_Kstim_130122_No1_control_L5_S3L,Control,Stimulated,148.256,422.06
+20220115_Kstim_130122_No1_control_L5_S3R,Control,Stimulated,99.837,558.719
+20220115_Kstim_130122_No1_control_L5_S4L,Control,Stimulated,102.368,592.616
+20220115_Kstim_130122_No1_control_L5_S4R,Control,Stimulated,160.106,517.228
+20220115_Kstim_130122_No1_control_L5_S5R,Control,Stimulated,50.083,400.026
+20220115_Kstim_130122_No1_lac_RNAi_L1_S2L,Lac RNAi,Stimulated,594.462,1024.773
+20220115_Kstim_130122_No1_lac_RNAi_L1_S2R,Lac RNAi,Stimulated,431.478,953.422
+20220115_Kstim_130122_No1_lac_RNAi_L1_S3L,Lac RNAi,Stimulated,191.05,750.018
+20220115_Kstim_130122_No1_lac_RNAi_L1_S3R,Lac RNAi,Stimulated,352.795,741.606
+20220115_Kstim_130122_No1_lac_RNAi_L1_S4L,Lac RNAi,Stimulated,138.457,414.093
+20220115_Kstim_130122_No1_lac_RNAi_L1_S4R,Lac RNAi,Stimulated,153.718,390.994
+20220115_Kstim_130122_No1_lac_RNAi_L1_S5R,Lac RNAi,Stimulated,44.713,377.991
+20220115_Kstim_130122_No1_lac_RNAi_L2_S2L,Lac RNAi,Stimulated,223.959,640.168
+20220115_Kstim_130122_No1_lac_RNAi_L2_S2R,Lac RNAi,Stimulated,639.556,956.6
+20220115_Kstim_130122_No1_lac_RNAi_L2_S3L,Lac RNAi,Stimulated,162.079,547.548
+20220115_Kstim_130122_No1_lac_RNAi_L2_S3R,Lac RNAi,Stimulated,170.783,434.997
+20220115_Kstim_130122_No1_lac_RNAi_L2_S4L,Lac RNAi,Stimulated,197.7,448.171
+20220115_Kstim_130122_No1_lac_RNAi_L2_S4R,Lac RNAi,Stimulated,94.437,457.543
+20220115_Kstim_130122_No1_lac_RNAi_L2_S5R,Lac RNAi,Stimulated,54.333,331.87
+20220115_Kstim_130122_No1_lac_RNAi_L3_S2L,Lac RNAi,Stimulated,321.86,549.483
+20220115_Kstim_130122_No1_lac_RNAi_L3_S3L,Lac RNAi,Stimulated,76.785,348.292
+20220115_Kstim_130122_No1_lac_RNAi_L3_S4L,Lac RNAi,Stimulated,48.858,217.942
+20220115_Kstim_130122_No1_lac_RNAi_L3_S5L,Lac RNAi,Stimulated,70.131,345.414
+20220116_Kstim_130122_No1_lac_RNAi_L3_S2R,Lac RNAi,Stimulated,188.485,598.767
+20220116_Kstim_130122_No1_lac_RNAi_L3_S3R,Lac RNAi,Stimulated,69.488,429.243
+20220116_Kstim_130122_No1_lac_RNAi_L3_S4R,Lac RNAi,Stimulated,86.752,371.868
+20220116_Kstim_130122_No1_lac_RNAi_L3_S5R,Lac RNAi,Stimulated,49.462,326.25
+20220116_Kstim_130122_No1_lac_RNAi_L4_S2L,Lac RNAi,Stimulated,135.234,398.751
+20220116_Kstim_130122_No1_lac_RNAi_L4_S2R,Lac RNAi,Stimulated,290.663,897.526
+20220116_Kstim_130122_No1_lac_RNAi_L4_S3L,Lac RNAi,Stimulated,119.116,455.792
+20220116_Kstim_130122_No1_lac_RNAi_L4_S3R,Lac RNAi,Stimulated,393.505,571.827
+20220116_Kstim_130122_No1_lac_RNAi_L4_S4L,Lac RNAi,Stimulated,53.459,418.194
+20220116_Kstim_130122_No1_lac_RNAi_L4_S4R,Lac RNAi,Stimulated,129.167,348.09
+20220116_Kstim_130122_No1_lac_RNAi_L4_S5R,Lac RNAi,Stimulated,28.223,205.01
+20220116_Kstim_130122_No1_lac_RNAi_L5_S2L,Lac RNAi,Stimulated,414.899,935.732
+20220116_Kstim_130122_No1_lac_RNAi_L5_S2R,Lac RNAi,Stimulated,314.944,679.951
+20220116_Kstim_130122_No1_lac_RNAi_L5_S3L,Lac RNAi,Stimulated,176.753,630.522
+20220116_Kstim_130122_No1_lac_RNAi_L5_S3R,Lac RNAi,Stimulated,130.835,435.526
+20220116_Kstim_130122_No1_lac_RNAi_L5_S4L,Lac RNAi,Stimulated,109.711,565.676
+20220116_Kstim_130122_No1_lac_RNAi_L5_S4R,Lac RNAi,Stimulated,261.933,431.564
+20220116_Kstim_130122_No1_lac_RNAi_L5_S5L,Lac RNAi,Stimulated,137.798,589.54
+20220116_Kstim_130122_No1_lac_RNAi_L5_S5R,Lac RNAi,Stimulated,56.501,211.486
+20220116_Kstim_130122_No1_lac_RNAi_L6_S2L,Lac RNAi,Stimulated,417.877,833.132
+20220116_Kstim_130122_No1_lac_RNAi_L6_S2R,Lac RNAi,Stimulated,444.521,707.993
+20220116_Kstim_130122_No1_lac_RNAi_L6_S3L,Lac RNAi,Stimulated,115.106,522.328
+20220116_Kstim_130122_No1_lac_RNAi_L6_S3R,Lac RNAi,Stimulated,200.777,601.374
+20220116_Kstim_130122_No1_lac_RNAi_L6_S4L,Lac RNAi,Stimulated,99.131,444.12
+20220116_Kstim_130122_No1_lac_RNAi_L6_S4R,Lac RNAi,Stimulated,68.158,466.938
+20220116_Kstim_130122_No1_lac_RNAi_L6_S5L,Lac RNAi,Stimulated,30.97,328.338
+20220116_Kstim_130122_No1_lac_RNAi_L6_S5R,Lac RNAi,Stimulated,50.265,254.129
+20220116_Kstim_130122_No1_lac_RNAi_L7_S2L,Lac RNAi,Stimulated,191.089,601.401
+20220116_Kstim_130122_No1_lac_RNAi_L7_S2R,Lac RNAi,Stimulated,125.5,578.289
+20220116_Kstim_130122_No1_lac_RNAi_L7_S3L,Lac RNAi,Stimulated,150.198,337.076
+20220116_Kstim_130122_No1_lac_RNAi_L7_S3R,Lac RNAi,Stimulated,104.252,307.292
+20220116_Kstim_130122_No1_lac_RNAi_L7_S4L,Lac RNAi,Stimulated,84.323,309.296
+20220116_Kstim_130122_No1_lac_RNAi_L7_S4R,Lac RNAi,Stimulated,14.049,193.459
+20220116_Kstim_130122_No1_lac_RNAi_L7_S5R,Lac RNAi,Stimulated,11.242,174.036
+20220117_Kstim_130122_No2_control_L1_S3R,Control,Stimulated,33.589,321.172
+20220117_Kstim_130122_No2_control_L1_S4R,Control,Stimulated,58.461,459.587
+20220117_Kstim_130122_No2_control_L1_S5L,Control,Stimulated,28.282,278.758
+20220117_Kstim_130122_No2_control_L1_S5R,Control,Stimulated,5.936,244.302
+20220117_Kstim_130122_No2_control_L2_S2L,Control,Stimulated,165.535,484.859
+20220117_Kstim_130122_No2_control_L2_S2R,Control,Stimulated,174.801,536.155
+20220117_Kstim_130122_No2_control_L2_S3R,Control,Stimulated,66.087,266.449
+20220117_Kstim_130122_No2_control_L2_S4L,Control,Stimulated,77.516,262.347
+20220117_Kstim_130122_No2_control_L2_S4R,Control,Stimulated,39.707,256.627
+20220117_Kstim_130122_No2_control_L2_S5L,Control,Stimulated,70.815,283.198
+20220117_Kstim_130122_No2_control_L2_S5R,Control,Stimulated,101.992,322.254
+20220117_Kstim_130122_No2_control_L3_S2L,Control,Stimulated,203.312,491.469
+20220117_Kstim_130122_No2_control_L3_S2R,Control,Stimulated,178.168,527.03
+20220117_Kstim_130122_No2_control_L3_S3L,Control,Stimulated,45.655,339.919
+20220117_Kstim_130122_No2_control_L3_S3R,Control,Stimulated,256.39,332.47
+20220117_Kstim_130122_No2_control_L3_S4L,Control,Stimulated,73.858,338.207
+20220117_Kstim_130122_No2_control_L3_S4R,Control,Stimulated,0,146.815
+20220117_Kstim_130122_No2_control_L3_S5R,Control,Stimulated,19.338,343.97
+20220117_Kstim_130122_No2_control_L4_S2L,Control,Stimulated,121.072,432.278
+20220117_Kstim_130122_No2_control_L4_S2R,Control,Stimulated,174.387,476.268
+20220117_Kstim_130122_No2_control_L4_S3L,Control,Stimulated,42.368,271.672
+20220117_Kstim_130122_No2_control_L4_S3R,Control,Stimulated,35.629,292.59
+20220117_Kstim_130122_No2_control_L4_S4L,Control,Stimulated,27.319,199.01
+20220117_Kstim_130122_No2_control_L4_S4R,Control,Stimulated,29.727,259.757
+20220117_Kstim_130122_No2_control_L4_S5L,Control,Stimulated,12.603,288.475
+20220117_Kstim_130122_No2_control_L4_S5R,Control,Stimulated,39.652,222.599
+20220117_Kstim_130122_No2_control_L5_S2R,Control,Stimulated,126.923,296.406
+20220117_Kstim_130122_No2_control_L5_S3R,Control,Stimulated,38.709,120.421
+20220117_Kstim_130122_No2_control_L5_S4R,Control,Stimulated,47.033,139.299
+20220117_Kstim_130122_No2_control_L6_S2L,Control,Stimulated,58.369,264.282
+20220117_Kstim_130122_No2_control_L6_S2R,Control,Stimulated,112.837,415.638
+20220117_Kstim_130122_No2_control_L6_S3L,Control,Stimulated,17.643,187.134
+20220117_Kstim_130122_No2_control_L6_S3R,Control,Stimulated,44.308,176.165
+20220117_Kstim_130122_No2_control_L6_S4L,Control,Stimulated,13.943,209.028
+20220117_Kstim_130122_No2_control_L6_S4R,Control,Stimulated,34.708,277.351
+20220117_Kstim_130122_No2_control_L6_S5L,Control,Stimulated,22.654,249.795
+20220117_Kstim_130122_No2_control_L6_S5R,Control,Stimulated,23.162,173.141
+20220117_Kstim_130122_No2_control_L7_S2R,Control,Stimulated,135.905,371.805
+20220117_Kstim_130122_No2_control_L7_S3L,Control,Stimulated,54.908,304.5
+20220117_Kstim_130122_No2_control_L7_S3R,Control,Stimulated,136.826,401.62
+20220117_Kstim_130122_No2_control_L7_S4L,Control,Stimulated,15.134,223.671
+20220117_Kstim_130122_No2_control_L7_S4R,Control,Stimulated,42.064,256.711
+20220117_Kstim_130122_No2_control_L7_S5L,Control,Stimulated,20.403,198.153
+20220117_Kstim_130122_No2_control_L7_S5R,Control,Stimulated,31.091,274.573
+20220117_Kstim_130122_No2_lac_RNAi_L1_S2L,Lac RNAi,Stimulated,181.025,497.799
+20220117_Kstim_130122_No2_lac_RNAi_L1_S2R,Lac RNAi,Stimulated,292.028,584.384
+20220117_Kstim_130122_No2_lac_RNAi_L1_S3L,Lac RNAi,Stimulated,90.829,313.203
+20220117_Kstim_130122_No2_lac_RNAi_L1_S3R,Lac RNAi,Stimulated,37.028,370.79
+20220117_Kstim_130122_No2_lac_RNAi_L1_S4L,Lac RNAi,Stimulated,22.507,197.164
+20220117_Kstim_130122_No2_lac_RNAi_L1_S4R,Lac RNAi,Stimulated,99.199,305.116
+20220117_Kstim_130122_No2_lac_RNAi_L1_S5L,Lac RNAi,Stimulated,82.806,291.681
+20220117_Kstim_130122_No2_lac_RNAi_L1_S5R,Lac RNAi,Stimulated,106.343,355.801
+20220117_Kstim_130122_No2_lac_RNAi_L2_S2L,Lac RNAi,Stimulated,65.229,339.128
+20220117_Kstim_130122_No2_lac_RNAi_L2_S2R,Lac RNAi,Stimulated,240.338,455.414
+20220117_Kstim_130122_No2_lac_RNAi_L2_S3L,Lac RNAi,Stimulated,91.671,353.206
+20220117_Kstim_130122_No2_lac_RNAi_L2_S3R,Lac RNAi,Stimulated,166.482,373.646
+20220117_Kstim_130122_No2_lac_RNAi_L2_S4L,Lac RNAi,Stimulated,63.645,287.33
+20220117_Kstim_130122_No2_lac_RNAi_L2_S4R,Lac RNAi,Stimulated,12.679,135.881
+20220117_Kstim_130122_No2_lac_RNAi_L2_S5L,Lac RNAi,Stimulated,22.139,168.988
+20220117_Kstim_130122_No2_lac_RNAi_L2_S5R,Lac RNAi,Stimulated,69.248,200.126
+20220117_Kstim_130122_No2_lac_RNAi_L3_S2L,Lac RNAi,Stimulated,293.557,665.439
+20220117_Kstim_130122_No2_lac_RNAi_L3_S3L,Lac RNAi,Stimulated,119.576,426.396
+20220117_Kstim_130122_No2_lac_RNAi_L3_S3R,Lac RNAi,Stimulated,86.82,298.779
+20220117_Kstim_130122_No2_lac_RNAi_L3_S4L,Lac RNAi,Stimulated,100.458,335.017
+20220117_Kstim_130122_No2_lac_RNAi_L3_S4R,Lac RNAi,Stimulated,27.919,286.62
+20220117_Kstim_130122_No2_lac_RNAi_L3_S5L,Lac RNAi,Stimulated,4.183,211.225
+20220117_Kstim_130122_No2_lac_RNAi_L3_S5R,Lac RNAi,Stimulated,3.642,127.261
+20220117_Kstim_130122_No2_lac_RNAi_L4_S2L,Lac RNAi,Stimulated,257.34,698.925
+20220117_Kstim_130122_No2_lac_RNAi_L4_S3L,Lac RNAi,Stimulated,231.412,414.464
+20220117_Kstim_130122_No2_lac_RNAi_L4_S3R,Lac RNAi,Stimulated,210.396,511.837
+20220117_Kstim_130122_No2_lac_RNAi_L4_S4L,Lac RNAi,Stimulated,83.474,429.218
+20220117_Kstim_130122_No2_lac_RNAi_L4_S4R,Lac RNAi,Stimulated,79.518,343.806
+20220117_Kstim_130122_No2_lac_RNAi_L4_S5L,Lac RNAi,Stimulated,133.062,460.044
+20220117_Kstim_130122_No2_lac_RNAi_L5_S2L,Lac RNAi,Stimulated,8.497,194.32
+20220117_Kstim_130122_No2_lac_RNAi_L5_S3L,Lac RNAi,Stimulated,42.322,345.496
+20220117_Kstim_130122_No2_lac_RNAi_L5_S3R,Lac RNAi,Stimulated,105.367,401.333
+20220117_Kstim_130122_No2_lac_RNAi_L5_S4R,Lac RNAi,Stimulated,48.942,253.213
+20220117_Kstim_130122_No2_lac_RNAi_L5_S5R,Lac RNAi,Stimulated,5.48,250.449
+20220117_Kstim_130122_No2_lac_RNAi_L6_S2L,Lac RNAi,Stimulated,202.28,590.145
+20220117_Kstim_130122_No2_lac_RNAi_L6_S3L,Lac RNAi,Stimulated,0,289.836
+20220117_Kstim_130122_No2_lac_RNAi_L6_S4L,Lac RNAi,Stimulated,101.569,513.131
+20220118_Kstim_130122_No2_lac_RNAi_L6_S2R,Lac RNAi,Stimulated,224.39,581.183
+20220118_Kstim_130122_No2_lac_RNAi_L6_S3R,Lac RNAi,Stimulated,104.281,343.496
+20220118_Kstim_130122_No2_lac_RNAi_L6_S4R,Lac RNAi,Stimulated,79.637,336.888
+20220118_Kstim_130122_No2_lac_RNAi_L6_S5L,Lac RNAi,Stimulated,118.368,312.841
+20220120_Kstim_130122_No3_control_L1_S2R,Control,Stimulated,218.795,704.777
+20220120_Kstim_130122_No3_control_L1_S3L,Control,Stimulated,93.318,408.114
+20220120_Kstim_130122_No3_control_L1_S3R,Control,Stimulated,67.182,439.057
+20220120_Kstim_130122_No3_control_L1_S4L,Control,Stimulated,35.52,336.675
+20220120_Kstim_130122_No3_control_L1_S4R,Control,Stimulated,44.249,411.155
+20220120_Kstim_130122_No3_control_L1_S5L,Control,Stimulated,12.105,193.126
+20220120_Kstim_130122_No3_control_L1_S5R,Control,Stimulated,0,164.534
+20220120_Kstim_130122_No3_control_L2_S2L,Control,Stimulated,102.422,538.253
+20220120_Kstim_130122_No3_control_L2_S3L,Control,Stimulated,53.763,426.446
+20220120_Kstim_130122_No3_control_L2_S4L,Control,Stimulated,37.434,328.071
+20220120_Kstim_130122_No3_control_L2_S4R,Control,Stimulated,49.839,345.674
+20220120_Kstim_130122_No3_control_L2_S5L,Control,Stimulated,24.564,281.187
+20220120_Kstim_130122_No3_control_L3_S2L,Control,Stimulated,166.52,653.887
+20220120_Kstim_130122_No3_control_L3_S2R,Control,Stimulated,154.081,764.648
+20220120_Kstim_130122_No3_control_L3_S3L,Control,Stimulated,114.063,375.442
+20220120_Kstim_130122_No3_control_L3_S3R,Control,Stimulated,80.769,515.307
+20220120_Kstim_130122_No3_control_L3_S4L,Control,Stimulated,38.131,251.109
+20220120_Kstim_130122_No3_control_L3_S4R,Control,Stimulated,2.159,260.885
+20220120_Kstim_130122_No3_control_L4_S2L,Control,Stimulated,175.646,722.399
+20220120_Kstim_130122_No3_control_L4_S2R,Control,Stimulated,144.922,662.053
+20220120_Kstim_130122_No3_control_L4_S3L,Control,Stimulated,103.53,552.301
+20220120_Kstim_130122_No3_control_L4_S3R,Control,Stimulated,154.888,584.444
+20220120_Kstim_130122_No3_control_L4_S4L,Control,Stimulated,59.171,412.58
+20220120_Kstim_130122_No3_control_L4_S4R,Control,Stimulated,71.572,435.77
+20220120_Kstim_130122_No3_control_L4_S5L,Control,Stimulated,35.114,352.94
+20220120_Kstim_130122_No3_control_L4_S5R,Control,Stimulated,23.166,283.202
+20220120_Kstim_130122_No3_control_L5_S2L,Control,Stimulated,229.692,855.115
+20220120_Kstim_130122_No3_control_L5_S2R,Control,Stimulated,339.555,1084.727
+20220120_Kstim_130122_No3_control_L5_S3L,Control,Stimulated,71.428,357.574
+20220120_Kstim_130122_No3_control_L5_S3R,Control,Stimulated,16.055,283.148
+20220120_Kstim_130122_No3_control_L5_S4L,Control,Stimulated,0,174.51
+20220120_Kstim_130122_No3_control_L5_S4R,Control,Stimulated,15.941,351.063
+20220120_Kstim_130122_No3_control_L5_S5L,Control,Stimulated,30.23,236.756
+20220120_Kstim_130122_No3_control_L5_S5R,Control,Stimulated,21.581,297.047
+20220204_Kstim_130122_No3_lac_L1_S2L,Lac RNAi,Stimulated,157.723,375.953
+20220204_Kstim_130122_No3_lac_L1_S2R,Lac RNAi,Stimulated,215.966,500.278
+20220204_Kstim_130122_No3_lac_L1_S5R,Lac RNAi,Stimulated,121.101,437.625
+20220204_Kstim_130122_No3_lac_L2_S3R,Lac RNAi,Stimulated,138.424,536.317
+20220204_Kstim_130122_No3_lac_L2_S4L,Lac RNAi,Stimulated,83.58,260.805
+20220204_Kstim_130122_No3_lac_L2_S4R,Lac RNAi,Stimulated,139.361,411.502
+20220204_Kstim_130122_No3_lac_L2_S5L,Lac RNAi,Stimulated,96.093,242.802
+20220204_Kstim_130122_No3_lac_L2_S5R,Lac RNAi,Stimulated,71.483,317.229
+20220204_Kstim_130122_No3_lac_L3_S2L,Lac RNAi,Stimulated,307.314,751.062
+20220204_Kstim_130122_No3_lac_L3_S2R,Lac RNAi,Stimulated,202.94,625.127
+20220204_Kstim_130122_No3_lac_L3_S3L,Lac RNAi,Stimulated,241.04,567.915
+20220204_Kstim_130122_No3_lac_L3_S3R,Lac RNAi,Stimulated,123.898,558.131
+20220204_Kstim_130122_No3_lac_L3_S4L,Lac RNAi,Stimulated,73.713,503.21
+20220204_Kstim_130122_No3_lac_L3_S4R,Lac RNAi,Stimulated,127.096,501.774
+20220204_Kstim_130122_No3_lac_L3_S5L,Lac RNAi,Stimulated,124.726,367.394
+20220204_Kstim_130122_No3_lac_L3_S5R,Lac RNAi,Stimulated,107.581,418.795
+20220204_Kstim_130122_No3_lac_L4_S2L,Lac RNAi,Stimulated,334.823,683.432
+20220204_Kstim_130122_No3_lac_L4_S2R,Lac RNAi,Stimulated,291.393,795.752
+20220204_Kstim_130122_No3_lac_L4_S3L,Lac RNAi,Stimulated,137.71,482.365
+20220204_Kstim_130122_No3_lac_L4_S3R,Lac RNAi,Stimulated,171.049,631.297
+20220204_Kstim_130122_No3_lac_L4_S4L,Lac RNAi,Stimulated,41.921,303.532
+20220204_Kstim_130122_No3_lac_L4_S4R,Lac RNAi,Stimulated,100.542,582.035
+20220204_Kstim_130122_No3_lac_L4_S5L,Lac RNAi,Stimulated,102.037,418.177
+20220204_Kstim_130122_No3_lac_L4_S5R,Lac RNAi,Stimulated,66.747,432.556
+20220629_29062022_Repo_GFP_control_L1_S2L,Control,Unstimulated,322.351,978.395
+20220629_29062022_Repo_GFP_control_L1_S2R,Control,Unstimulated,340.121,927.214
+20220629_29062022_Repo_GFP_control_L1_S3L,Control,Unstimulated,139.332,536.3
+20220629_29062022_Repo_GFP_control_L1_S3R,Control,Unstimulated,136.248,541.548
+20220629_29062022_Repo_GFP_control_L1_S4L,Control,Unstimulated,129.149,380.191
+20220629_29062022_Repo_GFP_control_L1_S4R,Control,Unstimulated,166.545,491.773
+20220629_29062022_Repo_GFP_control_L1_S5R,Control,Unstimulated,68.601,212.18
+20220629_29062022_Repo_GFP_control_L2_S2L,Control,Unstimulated,181.181,611.303
+20220629_29062022_Repo_GFP_control_L2_S2R,Control,Unstimulated,189.643,666.058
+20220629_29062022_Repo_GFP_control_L2_S3L,Control,Unstimulated,227.896,482.583
+20220629_29062022_Repo_GFP_control_L2_S3R,Control,Unstimulated,141.681,464.158
+20220629_29062022_Repo_GFP_control_L2_S4L,Control,Unstimulated,52.369,353.73
+20220629_29062022_Repo_GFP_control_L2_S4R,Control,Unstimulated,65.492,429.589
+20220629_29062022_Repo_GFP_control_L2_S5R,Control,Unstimulated,39.449,374.208
+20220629_29062022_Repo_GFP_control_L3_S2L,Control,Unstimulated,326.812,730.017
+20220629_29062022_Repo_GFP_control_L3_S3L,Control,Unstimulated,94.822,401.054
+20220629_29062022_Repo_GFP_control_L3_S3R,Control,Unstimulated,48.579,343.11
+20220629_29062022_Repo_GFP_control_L3_S4L,Control,Unstimulated,56.767,287.946
+20220629_29062022_Repo_GFP_control_L3_S4R,Control,Unstimulated,46.606,293.904
+20220629_29062022_Repo_GFP_control_L3_S5L,Control,Unstimulated,52.124,211.833
+20220629_29062022_Repo_GFP_control_L4_S2L,Control,Unstimulated,292.826,702.153
+20220629_29062022_Repo_GFP_control_L4_S2R,Control,Unstimulated,267.312,601.217
+20220629_29062022_Repo_GFP_control_L4_S3L,Control,Unstimulated,139.223,414.848
+20220629_29062022_Repo_GFP_control_L4_S3R,Control,Unstimulated,150.959,453.325
+20220629_29062022_Repo_GFP_control_L4_S4R,Control,Unstimulated,45.681,232.527
+20220629_29062022_Repo_GFP_control_L4_S5L,Control,Unstimulated,46.209,275.356
+20220629_29062022_Repo_GFP_control_L4_S5R,Control,Unstimulated,72.615,256.377
+20220629_29062022_Repo_GFP_control_L5_S2R,Control,Unstimulated,149.062,234.648
+20220629_29062022_Repo_GFP_control_L5_S3L,Control,Unstimulated,204.862,382.709
+20220629_29062022_Repo_GFP_control_L5_S3R,Control,Unstimulated,64.537,450.832
+20220629_29062022_Repo_GFP_control_L5_S4R,Control,Unstimulated,123.547,606.491
+20220629_29062022_Repo_GFP_control_L5_S5L,Control,Unstimulated,34.874,293.65
+20220629_29062022_Repo_GFP_control_L5_S5R,Control,Unstimulated,88.235,338.525
+20220629_29062022_Repo_GFP_control_L6_S2R,Control,Unstimulated,230.373,732.883
+20220629_29062022_Repo_GFP_control_L6_S3L,Control,Unstimulated,29.191,204.055
+20220629_29062022_Repo_GFP_control_L6_S3R,Control,Unstimulated,116.699,478.287
+20220629_29062022_Repo_GFP_control_L6_S4L,Control,Unstimulated,27.534,266.864
+20220629_29062022_Repo_GFP_control_L6_S4R,Control,Unstimulated,33.669,197.08
+20220629_29062022_Repo_GFP_control_L6_S5L,Control,Unstimulated,12.189,241.932
+20220629_29062022_Repo_GFP_control_L6_S5R,Control,Unstimulated,192.039,463.634
+20220629_29062022_Repo_GFP_lac_L1_S2L,Lac RNAi,Unstimulated,341.465,648.862
+20220629_29062022_Repo_GFP_lac_L1_S2R,Lac RNAi,Unstimulated,257.67,558.596
+20220629_29062022_Repo_GFP_lac_L1_S3L,Lac RNAi,Unstimulated,103.66,366.561
+20220629_29062022_Repo_GFP_lac_L1_S3R,Lac RNAi,Unstimulated,38.587,292.48
+20220629_29062022_Repo_GFP_lac_L1_S4L,Lac RNAi,Unstimulated,195.702,290.197
+20220629_29062022_Repo_GFP_lac_L1_S4R,Lac RNAi,Unstimulated,18.696,300.622
+20220629_29062022_Repo_GFP_lac_L1_S5L,Lac RNAi,Unstimulated,3.76,232.113
+20220629_29062022_Repo_GFP_lac_L1_S5R,Lac RNAi,Unstimulated,21.675,210.49
+20220629_29062022_Repo_GFP_lac_L2_S3L,Lac RNAi,Unstimulated,142.754,396.908
+20220629_29062022_Repo_GFP_lac_L2_S3R,Lac RNAi,Unstimulated,105.946,369.303
+20220629_29062022_Repo_GFP_lac_L2_S4L,Lac RNAi,Unstimulated,46.868,195.537
+20220629_29062022_Repo_GFP_lac_L2_S4R,Lac RNAi,Unstimulated,42.486,188.144
+20220629_29062022_Repo_GFP_lac_L2_S5L,Lac RNAi,Unstimulated,30.978,201.131
+20220629_29062022_Repo_GFP_lac_L2_S5R,Lac RNAi,Unstimulated,34.907,194.916
+20220629_29062022_Repo_GFP_lac_L3_S2L,Lac RNAi,Unstimulated,327.264,444.69
+20220629_29062022_Repo_GFP_lac_L3_S2R,Lac RNAi,Unstimulated,311.658,516.574
+20220629_29062022_Repo_GFP_lac_L3_S3L,Lac RNAi,Unstimulated,126.328,337.084
+20220629_29062022_Repo_GFP_lac_L3_S3R,Lac RNAi,Unstimulated,134.879,339.42
+20220629_29062022_Repo_GFP_lac_L3_S4R,Lac RNAi,Unstimulated,51.808,248.101
+20220629_29062022_Repo_GFP_lac_L3_S5R,Lac RNAi,Unstimulated,79.671,169.6
+20220629_29062022_Repo_GFP_lac_L4_S2L,Lac RNAi,Unstimulated,353.321,569.323
+20220629_29062022_Repo_GFP_lac_L4_S2R,Lac RNAi,Unstimulated,202.179,479.782
+20220629_29062022_Repo_GFP_lac_L4_S3L,Lac RNAi,Unstimulated,151.627,273.253
+20220629_29062022_Repo_GFP_lac_L4_S3R,Lac RNAi,Unstimulated,37.995,221.411
+20220629_29062022_Repo_GFP_lac_L4_S4L,Lac RNAi,Unstimulated,35.68,219.054
+20220629_29062022_Repo_GFP_lac_L4_S5L,Lac RNAi,Unstimulated,27.378,206.209
+20220629_29062022_Repo_GFP_lac_L4_S5R,Lac RNAi,Unstimulated,55.107,182.808
+20220629_29062022_Repo_GFP_lac_L5_S3R,Lac RNAi,Unstimulated,86.008,340.462
+20220629_29062022_Repo_GFP_lac_L5_S4R,Lac RNAi,Unstimulated,139.163,337.184
+20220629_29062022_Repo_GFP_lac_L5_S5R,Lac RNAi,Unstimulated,43.991,154.542
+20220629_29062022_Repo_GFP_lac_L6_S4L,Lac RNAi,Unstimulated,139.522,249.326
+20220629_29062022_Repo_GFP_lac_L6_S4R,Lac RNAi,Unstimulated,77.36,179.156
+20221104_Repo_GFP_CTRL_L1_S2L,Control,Unstimulated,188.038,548.519
+20221104_Repo_GFP_CTRL_L1_S2R,Control,Unstimulated,172.257,462.18
+20221104_Repo_GFP_CTRL_L1_S3L,Control,Unstimulated,82.734,224.985
+20221104_Repo_GFP_CTRL_L1_S3R,Control,Unstimulated,49.086,203.848
+20221104_Repo_GFP_CTRL_L1_S4L,Control,Unstimulated,106.322,182.414
+20221104_Repo_GFP_CTRL_L1_S5L,Control,Unstimulated,21.898,139.518
+20221104_Repo_GFP_CTRL_L2_S2L,Control,Unstimulated,179.567,536.943
+20221104_Repo_GFP_CTRL_L2_S2R,Control,Unstimulated,199.044,428.267
+20221104_Repo_GFP_CTRL_L2_S3L,Control,Unstimulated,129.61,347.316
+20221104_Repo_GFP_CTRL_L2_S3R,Control,Unstimulated,37.205,290.898
+20221104_Repo_GFP_CTRL_L2_S4R,Control,Unstimulated,53.679,337.412
+20221104_Repo_GFP_CTRL_L2_S5L,Control,Unstimulated,77.119,228.906
+20221104_Repo_GFP_CTRL_L3_S2L,Control,Unstimulated,326.026,682.243
+20221104_Repo_GFP_CTRL_L3_S3L,Control,Unstimulated,126.738,362.949
+20221104_Repo_GFP_CTRL_L3_S4R,Control,Unstimulated,40.454,289.941
+20221104_Repo_GFP_CTRL_L4_S2L,Control,Unstimulated,263.576,336.572
+20221104_Repo_GFP_CTRL_L4_S2R,Control,Unstimulated,185.769,282.078
+20221104_Repo_GFP_CTRL_L4_S3L,Control,Unstimulated,93.715,349.639
+20221104_Repo_GFP_CTRL_L4_S5R,Control,Unstimulated,123.7,309.164
+20221104_Repo_GFP_CTRL_L5_S3L,Control,Unstimulated,178.532,412.221
+20221104_Repo_GFP_CTRL_L5_S3R,Control,Unstimulated,164.729,292.34
+20221104_Repo_GFP_CTRL_L5_S4L,Control,Unstimulated,152.751,310.74
+20221104_Repo_GFP_CTRL_L5_S5L,Control,Unstimulated,47.578,283.223
+20221104_Repo_GFP_CTRL_L5_S5R,Control,Unstimulated,95.177,219.561
+20221104_Repo_GFP_CTRL_L6_S2L,Control,Unstimulated,138.554,466.774
+20221104_Repo_GFP_CTRL_L6_S3L,Control,Unstimulated,161.56,196.668
+20221104_Repo_GFP_CTRL_L6_S4R,Control,Unstimulated,81.462,345.018
+20221104_Repo_GFP_CTRL_L6_S5R,Control,Unstimulated,59.953,222.087
+20221104_Repo_GFP_GD_L1_S2L,Lac RNAi,Unstimulated,245.223,252.394
+20221104_Repo_GFP_GD_L1_S3L,Lac RNAi,Unstimulated,131.047,171.952
+20221104_Repo_GFP_GD_L1_S3R,Lac RNAi,Unstimulated,85.695,150.756
+20221104_Repo_GFP_GD_L1_S4L,Lac RNAi,Unstimulated,126.856,219.645
+20221104_Repo_GFP_GD_L1_S5L,Lac RNAi,Unstimulated,35.638,141.254
+20221104_Repo_GFP_GD_L2_S2L,Lac RNAi,Unstimulated,328.663,251.252
+20221104_Repo_GFP_GD_L2_S2R,Lac RNAi,Unstimulated,228.813,244.814
+20221104_Repo_GFP_GD_L2_S4L,Lac RNAi,Unstimulated,127.638,181.659
+20221104_Repo_GFP_GD_L2_S4R,Lac RNAi,Unstimulated,189.597,234.885
+20221104_Repo_GFP_GD_L3_S3L,Lac RNAi,Unstimulated,116.982,207.706
+20221104_Repo_GFP_GD_L3_S3R,Lac RNAi,Unstimulated,126.53,264.469
+20221104_Repo_GFP_GD_L3_S4R,Lac RNAi,Unstimulated,89.684,199.927
+20221104_Repo_GFP_GD_L3_S5L,Lac RNAi,Unstimulated,114.886,213.16
+20221104_Repo_GFP_GD_L4_S2L,Lac RNAi,Unstimulated,119.318,350.506
+20221104_Repo_GFP_GD_L4_S2R,Lac RNAi,Unstimulated,201.646,185.536
+20221104_Repo_GFP_GD_L4_S3R,Lac RNAi,Unstimulated,81.209,319.004
+20221104_Repo_GFP_GD_L5_S2R,Lac RNAi,Unstimulated,236.236,308.34
+20221104_Repo_GFP_GD_L5_S3L,Lac RNAi,Unstimulated,89.021,150.656
+20221104_Repo_GFP_GD_L5_S3R,Lac RNAi,Unstimulated,106.88,189.175
+20221104_Repo_GFP_GD_L5_S5L,Lac RNAi,Unstimulated,23.973,114.29
+20221104_Repo_GFP_GD_L6_S2R,Lac RNAi,Unstimulated,207.845,339.965
+20221104_Repo_GFP_GD_L6_S3R,Lac RNAi,Unstimulated,110.409,139.865
+20221104_Repo_GFP_GD_L6_S5L,Lac RNAi,Unstimulated,68.732,165.763
+20221220_Repo_Gal4_cd8_GFP_control_L1_S2L,Control,Unstimulated,421.697,1222.179
+20221220_Repo_Gal4_cd8_GFP_control_L1_S2R,Control,Unstimulated,344.249,709.03
+20221220_Repo_Gal4_cd8_GFP_control_L1_S3L,Control,Unstimulated,116.428,656.759
+20221220_Repo_Gal4_cd8_GFP_control_L1_S3R,Control,Unstimulated,164.285,524.8
+20221220_Repo_Gal4_cd8_GFP_control_L1_S4L,Control,Unstimulated,53.679,396.356
+20221220_Repo_Gal4_cd8_GFP_control_L1_S5L,Control,Unstimulated,30.581,434.989
+20221220_Repo_Gal4_cd8_GFP_control_L1_S5R,Control,Unstimulated,44.172,411.481
+20221220_Repo_Gal4_cd8_GFP_control_L2_S2L,Control,Unstimulated,473.077,1167.101
+20221220_Repo_Gal4_cd8_GFP_control_L2_S2R,Control,Unstimulated,286.236,894.125
+20221220_Repo_Gal4_cd8_GFP_control_L2_S3L,Control,Unstimulated,141.001,412.364
+20221220_Repo_Gal4_cd8_GFP_control_L2_S3R,Control,Unstimulated,114.308,336.074
+20221220_Repo_Gal4_cd8_GFP_control_L3_S2L,Control,Unstimulated,232.785,621.228
+20221220_Repo_Gal4_cd8_GFP_control_L3_S2R,Control,Unstimulated,230.385,521.361
+20221220_Repo_Gal4_cd8_GFP_control_L3_S3L,Control,Unstimulated,86.967,405.845
+20221220_Repo_Gal4_cd8_GFP_control_L3_S3R,Control,Unstimulated,91.606,414.895
+20221220_Repo_Gal4_cd8_GFP_control_L3_S4L,Control,Unstimulated,36.91,273.522
+20221220_Repo_Gal4_cd8_GFP_control_L3_S4R,Control,Unstimulated,67.697,341.017
+20221220_Repo_Gal4_cd8_GFP_control_L3_S5L,Control,Unstimulated,16.199,324.822
+20221220_Repo_Gal4_cd8_GFP_control_L3_S5R,Control,Unstimulated,86.144,292.387
+20221220_Repo_Gal4_cd8_GFP_control_L4_S2L,Control,Unstimulated,213.992,658.225
+20221220_Repo_Gal4_cd8_GFP_control_L4_S2R,Control,Unstimulated,337.573,1320.658
+20221220_Repo_Gal4_cd8_GFP_control_L4_S3L,Control,Unstimulated,252.651,581.614
+20221220_Repo_Gal4_cd8_GFP_control_L4_S3R,Control,Unstimulated,202.145,477.763
+20221220_Repo_Gal4_cd8_GFP_control_L4_S4L,Control,Unstimulated,95.045,443.122
+20221220_Repo_Gal4_cd8_GFP_control_L4_S4R,Control,Unstimulated,67.6,350.004
+20221220_Repo_Gal4_cd8_GFP_control_L4_S5L,Control,Unstimulated,19.664,347.317
+20221220_Repo_Gal4_cd8_GFP_control_L4_S5R,Control,Unstimulated,50.413,389.891
+20221220_Repo_Gal4_cd8_GFP_control_L5_S2L,Control,Unstimulated,165.589,379.507
+20221220_Repo_Gal4_cd8_GFP_control_L5_S3R,Control,Unstimulated,105.925,270.1
+20221220_Repo_Gal4_cd8_GFP_control_L5_S5L,Control,Unstimulated,32.287,261.168
+20221220_Repo_Gal4_cd8_GFP_GD_L1_S2L,Lac RNAi,Unstimulated,407.167,631.136
+20221220_Repo_Gal4_cd8_GFP_GD_L1_S2R,Lac RNAi,Unstimulated,454.441,622.072
+20221220_Repo_Gal4_cd8_GFP_GD_L1_S3L,Lac RNAi,Unstimulated,352.948,589.535
+20221220_Repo_Gal4_cd8_GFP_GD_L1_S4L,Lac RNAi,Unstimulated,186.799,430.895
+20221220_Repo_Gal4_cd8_GFP_GD_L1_S5L,Lac RNAi,Unstimulated,60.164,270.84
+20221220_Repo_Gal4_cd8_GFP_GD_L2_S2L,Lac RNAi,Unstimulated,458.024,830.741
+20221220_Repo_Gal4_cd8_GFP_GD_L2_S2R,Lac RNAi,Unstimulated,404.589,720.269
+20221220_Repo_Gal4_cd8_GFP_GD_L2_S3L,Lac RNAi,Unstimulated,134.875,322.613
+20221220_Repo_Gal4_cd8_GFP_GD_L2_S3R,Lac RNAi,Unstimulated,397.522,488.971
+20221220_Repo_Gal4_cd8_GFP_GD_L2_S4L,Lac RNAi,Unstimulated,102.951,335.085
+20221220_Repo_Gal4_cd8_GFP_GD_L3_S2R,Lac RNAi,Unstimulated,377.394,681.522
+20221220_Repo_Gal4_cd8_GFP_GD_L3_S3L,Lac RNAi,Unstimulated,106.5,329.381
+20221220_Repo_Gal4_cd8_GFP_GD_L3_S3R,Lac RNAi,Unstimulated,201.773,465.185
+20221220_Repo_Gal4_cd8_GFP_GD_L3_S4L,Lac RNAi,Unstimulated,72.581,318.164
+20221220_Repo_Gal4_cd8_GFP_GD_L3_S5L,Lac RNAi,Unstimulated,17.707,217.718
+20221220_Repo_Gal4_cd8_GFP_GD_L4_S2L,Lac RNAi,Unstimulated,422.699,659.261
+20221220_Repo_Gal4_cd8_GFP_GD_L4_S2R,Lac RNAi,Unstimulated,261.198,605.126
+20221220_Repo_Gal4_cd8_GFP_GD_L4_S3R,Lac RNAi,Unstimulated,284.393,541.121
+20221220_Repo_Gal4_cd8_GFP_GD_L4_S4L,Lac RNAi,Unstimulated,171.894,385.734
+20221220_Repo_Gal4_cd8_GFP_GD_L4_S5L,Lac RNAi,Unstimulated,125.913,339.124
+20221220_Repo_Gal4_cd8_GFP_GD_L4_S5R,Lac RNAi,Unstimulated,124.709,194.739
+20221220_Repo_Gal4_cd8_GFP_GD_L5_S2R,Lac RNAi,Unstimulated,983.193,970.026
+20221220_Repo_Gal4_cd8_GFP_GD_L5_S3L,Lac RNAi,Unstimulated,514.297,797.828
+20221220_Repo_Gal4_cd8_GFP_GD_L5_S3R,Lac RNAi,Unstimulated,291.736,674.779
+20221220_Repo_Gal4_cd8_GFP_GD_L5_S4L,Lac RNAi,Unstimulated,171.315,444.635
+20221220_Repo_Gal4_cd8_GFP_GD_L5_S4R,Lac RNAi,Unstimulated,204.934,406.165
+20221220_Repo_Gal4_cd8_GFP_GD_L5_S5L,Lac RNAi,Unstimulated,166.613,344.553
+20221220_Repo_Gal4_cd8_GFP_GD_L5_S5R,Lac RNAi,Unstimulated,223.249,354.642
+20221220_Repo_Gal4_cd8_GFP_GD_L6_S2L,Lac RNAi,Unstimulated,620.991,981.959
+20221220_Repo_Gal4_cd8_GFP_GD_L6_S2R,Lac RNAi,Unstimulated,769.956,1066.749
+20221220_Repo_Gal4_cd8_GFP_GD_L6_S3R,Lac RNAi,Unstimulated,184.134,448.995
+20221220_Repo_Gal4_cd8_GFP_GD_L6_S4L,Lac RNAi,Unstimulated,187.822,449.903
+20221220_Repo_Gal4_cd8_GFP_GD_L6_S4R,Lac RNAi,Unstimulated,228.979,531.475

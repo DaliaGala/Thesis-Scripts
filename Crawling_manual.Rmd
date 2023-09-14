@@ -1,0 +1,175 @@
+---
+title: "Crawling_manual"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+## Environment
+```{r}
+library(tidyverse)
+library(ggbeeswarm)
+library(rstatix)
+library(dplyr)
+library(patchwork)
+library(ggplot2)
+library(ggpubr)
+library(ggforce)
+library(viridis)
+```
+
+## Read in reference circle data
+```{r}
+crawling_circle <- read_csv("Data/Crawing_assay_manual/reference_circle.csv")
+
+max_X = max(crawling_circle$X)
+min_X = min(crawling_circle$X)
+max_Y = max(crawling_circle$Y)
+min_Y = min(crawling_circle$Y)
+
+X_centre = (max_X + min_X)/2
+Y_centre = (max_Y + min_Y)/2
+radius = (max_X - min_X)/2
+```
+
+##Create a dataframe with all tracks
+```{r}
+## * * * * * Define a parsing function
+combine_tracks <- function(file){
+  # get filename that will be added as column name
+  filename  <- basename(file)
+  # get tibble, remove duplicates, and create a column to indicate category "1"
+  track_list <- read_csv(file, skip = 2, col_names = c("Track_Number", "Slice_number", "X", "Y", "Distance", "Velocity", "Pixel_value")) %>%
+    mutate("Filename" = filename) %>%
+    mutate("X_centre" = X_centre) %>%
+    mutate("Y_centre" = Y_centre) %>%
+    mutate("Radius" = radius) %>%
+    mutate("Distance_from_Centre" = sqrt((.$X - X_centre)^2 + (.$Y - Y_centre)^2)) %>%
+    mutate(Include = case_when(
+      Distance_from_Centre >= radius ~ TRUE,
+      TRUE ~ FALSE))
+}
+
+## * * * * * Choose directory and list .csv files
+list_dir   <- "./Data/Crawing_assay_manual/Data/"
+list_files <- list.files(list_dir, pattern = ".csv", full.names = TRUE)
+
+## * * * * * Run combine_tracks function over list_files 
+track_list_df <- map(list_files, combine_tracks) %>%
+  reduce(full_join) %>%
+  mutate_at("Filename", str_remove, " in unit per sec.csv") %>%
+  mutate_at("Filename", str_remove, "Results from ") %>%
+  mutate_at("Filename", ~substr(.,1,nchar(.)-16)) %>%
+  mutate(condition = case_when(
+    str_detect(Filename, "Control") ~ "Control",
+    str_detect(Filename, "CG1648") ~ "CG1648 RNAi",
+    str_detect(Filename, "CG42342") ~ "CG42342 RNAi",
+    str_detect(Filename, "Pdi") ~ "Pdi RNAi",
+    str_detect(Filename, "Lac") ~ "Lac RNAi"))
+
+# write.csv(track_list_df,'Data/Crawing_assay_manual/Track_list_df.csv')
+```
+
+## Read csv if exists
+```{r}
+dataframe <- read_csv('Data/Crawing_assay_manual/Track_list_df.csv')
+```
+
+##Select all TRUE rows
+```{r}
+clean_df <- 
+  dataframe %>%
+  group_by(Track_Number) %>%
+  arrange(Slice_number) %>% 
+  filter(cumsum(Include)<1) %>%
+  ungroup()
+```
+
+## Order factors for plotting
+```{r}
+clean_df$condition <- factor(clean_df$condition, levels = c("Control", "CG1648 RNAi", "CG42342 RNAi", "Pdi RNAi", "Lac RNAi"))
+```
+
+## Plot coordinates
+```{r}
+plot <- ggplot() +
+  geom_path(data = clean_df, mapping = aes(x = X, y = Y, group = Filename, color = Slice_number)) +
+  geom_circle(data = clean_df, mapping = aes(x0 = X_centre, y0 = Y_centre, r = radius)) +
+  facet_wrap(~condition) +
+  ggtitle("Motion tracks of larval locomotion assay for the candidate genes knockdown") +
+  xlab("Distance (mm)") +
+  ylab("Distance (mm)") +
+  scale_color_gradientn(colors = plasma(100), name = "Time(s)") +
+  theme_minimal() +
+  theme(
+    text = element_text(size = 7),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    axis.line = element_blank())+
+  coord_fixed()
+
+plot
+
+output_path <- "/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/Manual_crawling_tracks.pdf"
+ggsave(output_path, width = 8 * 0.6, height = 6 * 0.6, device = cairo_pdf)
+```
+
+## Get mean velocities
+```{r}
+means <- clean_df %>%
+  group_by(condition) %>%
+  group_by(Filename) %>%
+  summarise(mean_velocity = mean(Velocity)) %>%
+  ungroup() %>%
+  mutate(condition = case_when(
+    str_detect(Filename, "Control") ~ "Control",
+    str_detect(Filename, "CG1648") ~ "CG1648 RNAi",
+    str_detect(Filename, "CG42342") ~ "CG42342 RNAi",
+    str_detect(Filename, "Pdi") ~ "Pdi RNAi",
+    str_detect(Filename, "Lac") ~ "Lac RNAi"))
+
+means$condition <- factor(means$condition, levels = c("Control", "CG1648 RNAi", "CG42342 RNAi", "Pdi RNAi", "Lac RNAi"))
+
+stats <- means %>%
+  wilcox_test(mean_velocity ~ condition, ref.group = "Control", p.adjust.method = "bonferroni") %>%
+  add_significance()
+```
+
+## Plot mean velocities
+```{r}
+# Generate a longer list of colors from inferno
+colors <- viridisLite::inferno(5)
+
+# Exclude the undesired color
+colors <- colors[colors != "#FCFFA4FF"]
+
+# # Select the first 6 colors
+colors <- list(colors[1], colors[4])
+
+stat.test <- stats %>%
+  add_y_position() %>%
+  mutate(y.position = y.position+0.15)
+
+p <- ggplot(data = means, aes(x = condition, y = mean_velocity)) + 
+  geom_violin(color = 'NA', fill = colors[1], trim = FALSE, alpha = 0.15) +
+  geom_pointrange(stat = "summary", colour = "#ff7251", size = 0.5) +
+  geom_quasirandom(width = 0.2, size = 0.75) +
+  theme_bw() +
+  theme(
+    text = element_text(size = 8),
+    axis.title=element_text(size=10),
+    legend.position = "none") +
+  ggtitle("Comparison of larval crawling speeds for the candidate genes knockdown") +
+  xlab(NULL)+
+  ylab("Mean larval crawling velocity (cm/s)") +
+  stat_pvalue_manual(stat.test, label = "p.adj.signif", tip.length = 0.01, size = 2.5) +
+  ylim(-0.25, 2.75)
+
+p
+
+output_path <- "/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/Manual_crawling_velocities.pdf"
+ggsave(output_path, width = 8 * 0.6, height = 6 * 0.6, device = cairo_pdf)
+
+```

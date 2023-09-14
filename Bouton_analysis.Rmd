@@ -1,0 +1,138 @@
+---
+title: "Analyse_KStim_boutons"
+output: html_document
+date: "2023-08-15"
+editor_options: 
+  chunk_output_type: console
+---
+
+## Libraries
+```{r}
+library(tidyverse)
+library(rstatix)
+library(patchwork)
+library(furrr)
+library(colorspace)
+```
+
+## Helper function
+```{r}
+get_summary_results <- function(list_of_df) {
+  map(list_of_df, ~ {
+    kstim_mean <- .x %>%
+      group_by(condition) %>%
+      summarise(mean_bouton_count = mean(bouton_count))
+
+    kstim_foldchange <- bind_cols(
+      filter(kstim_mean, condition != "Control"),
+      filter(kstim_mean, condition == "Control") %>%
+        dplyr::select("control_mean" = mean_bouton_count)
+    ) %>%
+      mutate(foldchange = mean_bouton_count / control_mean)
+
+    kstim_statistics_wilcox <- .x %>%
+      wilcox_test(bouton_count ~ condition, ref.group = "Control") %>%
+      add_significance() %>%
+      dplyr::select("condition" = group2, statistic, p, starts_with("n")) %>%
+      left_join(kstim_foldchange, by = "condition")
+    
+    kstim_statistics_ttest <- .x %>%
+      t_test(bouton_count ~ condition, ref.group = "Control") %>%
+      add_significance() %>%
+      dplyr::select("condition" = group2, statistic, p) %>%
+      left_join(kstim_foldchange, by = "condition")
+
+
+    output <- list(kstim_statistics_wilcox, kstim_statistics_ttest, .x) %>%
+      set_names(c("Wilcox", "t-test", "full_df"))
+  })
+}
+```
+
+## Genes with single repilicates
+```{r}
+kstim_raw <- list.files(
+    "./Data/KStim_boutons/",
+    pattern = "*.csv",
+    full.names = TRUE
+  ) %>%
+  set_names() %>%
+  map(read_csv) %>%
+  imap(~ dplyr::select(.x, c(Set, Segment, contains("NMJ"), Boutons)) %>%
+         setNames(c("condition", "larval_segment", "nmj_number", "bouton_count")) %>%
+         mutate(condition = case_when(
+          condition == "Control" ~ "Control",
+          str_detect(condition, "RNAi") ~ str_replace(basename(.y), ".csv", ""),
+          TRUE ~ condition
+         ))
+         )
+```
+
+## Get stats using helper functions
+```{r}
+kstim_statistics <- get_summary_results(kstim_raw)
+```
+
+## Create summary dataframe
+```{r}
+kstim_wilcox_df <- kstim_statistics %>%
+  map_dfr(~ pluck(.x, "Wilcox"))
+```
+
+## Change gene names
+```{r}
+id_change <- tibble(
+  input = kstim_wilcox_df$condition,
+  ens99_name = c("α-Cat", "Atpα", "CG1648", "Flo2", "Gli", "Gs2", "kst", "Lac", "lost", "Nrg", "sdk", "CG42342", "Pdi", "cold", "nrv2", "shot", "Vha55")
+)
+```
+
+## Create df for plotting
+```{r}
+df_for_plotting <- kstim_wilcox_df %>%
+  left_join(id_change, by = c("condition" = "input")) %>%
+  mutate(p_legend = case_when(
+    p < 0.0001 ~ "**** < 0.0001",
+    p < 0.001 ~ "*** < 0.001",
+    p < 0.01 ~ "** < 0.01",
+    p < 0.05 ~ "* < 0.05",
+    TRUE ~ "N.S."
+  )) %>%
+  mutate(log2foldchange = log2(foldchange)) %>%
+  mutate(p_label = str_c("p=", signif(p, digits = 2))) %>%
+  mutate(p_label_pos = case_when(
+    log2foldchange >= 0 ~ log2foldchange + 0.08,
+    log2foldchange < 0 ~ log2foldchange - 0.08
+  ))
+
+write_csv(df_for_plotting, "./Output/Kstim_analysis/Boutons_output/kstim_boutons_summary_statistics_tidy.csv")
+```
+
+## Set specifics and plot
+```{r}
+colours <- c(sequential_hcl(n = 5, palette = "Inferno", rev = FALSE)[4], sequential_hcl(n = 5, palette = "Inferno", rev = FALSE)[3], "gray70")
+
+df_for_plotting %>%
+  ggplot(aes(x = reorder(ens99_name, -foldchange), y = log2foldchange, fill = p_legend)) + 
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, colour = "gray20", size = 0.1) +
+  geom_text(aes(y = p_label_pos, label = p_label), cex = 1.4) +
+  coord_cartesian(ylim = c(-1.2, 1.8)) +
+  labs(
+    x = "", 
+    y = "log2 Foldchange over Control",
+    fill = "P-value"
+  ) + 
+  scale_fill_manual(values = colours) +
+  theme_bw(base_size = 7) + 
+  theme(
+    legend.text = element_text(size = 5),
+    legend.title = element_text(size = 5),
+    axis.text.x = element_text(size = 5)
+    ) +
+  guides(fill = guide_legend(keywidth = 0.3, keyheight = 0.3))
+
+ggsave("./Output/Plots/phenotype_boutons_plot_kstim.pdf", 
+       width = 10.2 * 0.5, height = 5.5 * 0.55,
+       device = cairo_pdf)
+```

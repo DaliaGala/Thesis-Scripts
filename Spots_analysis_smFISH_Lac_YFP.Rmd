@@ -1,0 +1,180 @@
+---
+title: "NMJ_analysis_smFISH_spots_whole_NMJ_lac"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# R ENVIRONMENT 
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(rstatix)
+library(ggpubr)
+library(stringr)
+`%!in%` = Negate(`%in%`)
+options(scipen = 999)
+```
+
+# ANALYSIS
+
+# Import whole NMJ Lac::YFP molecules data
+```{r}
+# Get a list of all CSV files in the directory
+csv_files <- list.files(path ="./Data/CH5_Lac_YFP_KStim_smFISH/KStim_Lac_YFP_smFISH_whole_image_molecules_csvs",
+                        pattern = "*.csv", 
+                        full.names = TRUE)
+
+# Function to read a CSV and return its filename and number of rows
+get_file_info <- function(file) {
+  data <- read_csv(file, col_types = cols())
+  return(data.frame(Filename = str_remove_all(basename(file), ".csv"), Number_of_rows = nrow(data)))
+}
+
+# Use the map_df function from purrr to apply the function to each file and bind the results into one dataframe
+result_df <- purrr::map_df(csv_files, get_file_info)
+
+clean_whole_NMJ <- result_df %>%
+  mutate(condition = case_when(
+    str_detect(Filename, "_stim_") ~ "Stimulated",
+    str_detect(Filename, "unstim_mock") ~ "Mock stimulated",
+    str_detect(Filename, "unstim_open") ~ "Unstimulated")) %>%
+  filter(condition != "Mock stimulated")
+```
+
+# Import smFISH molecules in glial cells data
+```{r}
+dataframe <- read_csv("./Data/CH5_Lac_YFP_KStim_smFISH/final_results_lac_molecules_glia.csv")
+
+clean_glial_molecules <- dataframe %>%
+  mutate(condition = case_when(
+    str_detect(Filename, "_stim_") ~ "Stimulated",
+    str_detect(Filename, "unstim_mock") ~ "Mock stimulated",
+    str_detect(Filename, "unstim_open") ~ "Unstimulated")) %>%
+  rename("no_mRNA_molecules" = "Common Coordinates") %>%
+  filter(condition != "Mock stimulated") %>%
+  mutate(Filename = gsub("^ROI_", "", Filename)) %>%
+  mutate(Filename = gsub(".tif", "", Filename))
+```
+
+# Read in area df for glia areas
+```{r}
+# Get a list of all CSV files in the directory
+file_list <- list.files(path ="./Data/CH5_Lac_YFP_KStim_smFISH/KStim_area_of_dilated_Lac_YFP_csvs/",
+                        pattern = "*.csv", 
+                        full.names = TRUE)
+
+# Use the map_df function from purrr
+areas_df <- map_df(file_list, ~ read_csv(.x, col_names = TRUE) %>%
+                             mutate(name = str_remove_all(basename(.x), ".csv")))
+
+areas_df_clean_glia <- areas_df %>%
+  group_by(name) %>%
+  summarise(sum_Area = sum(Area)) %>%
+  ungroup() %>%
+  mutate(condition = case_when(
+    str_detect(name, "_stim_") ~ "Stimulated",
+    str_detect(name, "unstim_mock") ~ "Mock stimulated",
+    str_detect(name, "unstim_open") ~ "Unstimulated")) %>%
+  filter(condition != "Mock stimulated") %>%
+  mutate(name = gsub("^Results_Area", "", name))
+
+areas_df_clean_glia$name <- sub("(_C4).*", "\\1", areas_df_clean_glia$name)
+```
+
+#Merge areas of glia only with mRNA molecules in glia only
+```{r}
+result_glia_only <- merge(clean_glial_molecules,
+                          areas_df_clean_glia[, c("name", "sum_Area")],
+                          by.x = "Filename",
+                          by.y = "name",
+                          all.x = TRUE)
+
+result_glia_only <- result_glia_only[complete.cases(result_glia_only$sum_Area), ]
+result_glia_only <-
+  result_glia_only %>%
+   mutate(molecules_per_micron_sq = no_mRNA_molecules/sum_Area)
+```
+
+#Check if normal - glia only
+```{r}
+result_glia_only %>%
+  group_by(condition) %>%
+  shapiro_test(molecules_per_micron_sq) %>%
+  add_significance()
+```
+
+# Calculate statistics - glia only
+```{r}
+stats <- result_glia_only %>%
+  wilcox_test(molecules_per_micron_sq ~ condition, p.adjust.method = "bonferroni") %>%
+  add_significance()
+```
+
+# Plot - Lac::YFP mRNA molecules in glial projections only
+```{r}
+# Organise factor
+result_glia_only$condition <- factor(result_glia_only$condition, levels = c("Unstimulated", "Stimulated"))
+
+ggplot(result_glia_only, aes(x = condition, y = molecules_per_micron_sq)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Unstimulated", "Stimulated")), method = "wilcox.test", label = "p.signif") +
+  theme_classic2() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Lac::YFP mRNA molecules in NMJ glial projections",
+       y = expression(paste("Number of Lac::YFP mRNA molecules per ",mu, m^2,sep="")))
+
+
+ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/CH5_Lac_RNAi_KStim_mRNA_NMJ_glia_only_new.pdf",
+       width = 10 * 0.4, height = 10 * 0.4,
+       device = cairo_pdf)
+```
+
+#Check if normal - whole NMJ
+```{r}
+clean_whole_NMJ %>%
+  group_by(condition) %>%
+  shapiro_test(Number_of_rows) %>%
+  add_significance()
+```
+
+# Calculate statistics - whole NMJ
+```{r}
+stats_whole_NMJ <- clean_whole_NMJ %>%
+  t_test(Number_of_rows ~ condition) %>%
+  add_significance()
+```
+
+# Plot - Lac::YFP in mRNA molecules in whole NMJ
+```{r}
+# Organise factor
+clean_whole_NMJ$condition <- factor(clean_whole_NMJ$condition, levels = c("Unstimulated", "Stimulated"))
+
+ggplot(clean_whole_NMJ, aes(x = condition, y = Number_of_rows)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Unstimulated", "Stimulated")), method = "t.test", label = "p.signif") +
+  theme_classic2() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Lac::YFP mRNA molecules in the whole NMJ area",
+       y = "Number of Lac::YFP mRNA molecules")
+
+
+# ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/CH5_Lac_RNAi_KStim_mRNA_NMJ_whole_NMJ_area.pdf",
+#        width = 10 * 0.4, height = 10 * 0.4,
+#        device = cairo_pdf)
+```

@@ -1,0 +1,140 @@
+---
+title: "Area_analysis_glial_subtypes"
+output: pdf_document
+date: "2023-09-11"
+editor_options: 
+  chunk_output_type: console
+---
+## Libraries
+```{r}
+library(tidyverse)
+library(rstatix)
+library(patchwork)
+library(furrr)
+library(colorspace)
+library(ggplot2)
+library(ggbeeswarm)
+library(ggpubr)
+library(ggforce)
+library(viridis)
+`%!in%` = Negate(`%in%`)
+```
+
+## Read files in - KStim
+```{r}
+# perineurial.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_46F_GAL4.csv")
+# subperineurial.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_Mdr65_GAL4.csv")
+wrapping.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_Nrv2_GAL4.csv")
+```
+
+## Missing files
+```{r}
+# Read FIJI output and add missing files
+file_list = list.files(path ="/Volumes/LaCie/Area Analysis Glial Subtypes/Nrv2/Original run/Nrv2_Output_New/", pattern = "*.tif", all.files = FALSE,
+                       full.names = FALSE, recursive = FALSE, ignore.case = FALSE, include.dirs = FALSE, no.. = FALSE)
+
+for (f in file_list) {
+  f = str_replace(f, "^ROI_", "")
+  if (f %!in% wrapping.df$Label)
+    wrapping.df = add_row(wrapping.df, Label = f, Area = 0)
+}
+```
+
+## Clean dataframe
+```{r}
+## Wrapping data - Nrv2-GAL4
+df <- wrapping.df %>%
+  group_by(Label) %>%
+  summarise(sum_Area = sum(Area)) %>%
+  ungroup() %>%
+  mutate(condition = case_when(
+    str_detect(Label, "Repo_GFP_CTRL") ~ "Repo Control",
+    str_detect(Label, "Nrv2_GFP_CTRL") ~ "Nrv2 Control",
+    str_detect(Label, "Nrv2_GFP_GD") ~ "Nrv2>Lac RNAi",
+    str_detect(Label, "Repo_GFP_GD") ~ "Repo>Lac RNAi")) %>%
+  mutate(channel = case_when(
+    str_detect(Label, "C1") ~ "Glial projection area",
+    TRUE ~ "Motor neuron axon projection area")) %>%
+  na.omit()
+
+df$sum_Area[df$sum_Area > 1000] <- 0
+
+## Subperineurial data - 46F-GAL4
+# df <- subperineurial.df %>%
+#   group_by(Label) %>%
+#   summarise(sum_Area = sum(Area)) %>%
+#   ungroup() %>%
+#   mutate(condition = case_when(
+#     str_detect(Label, "Repo_GFP_control") ~ "Repo Control",
+#     str_detect(Label, "Mdr_GFP_Control") ~ "Mdr65 Control",
+#     str_detect(Label, "Mdr_GFP_lac_GD") ~ "Mdr65>Lac RNAi",
+#     str_detect(Label, "Repo_GFP_lac") ~ "Repo>Lac RNAi")) %>%
+#   mutate(channel = case_when(
+#     str_detect(Label, "C1") ~ "Glial projection area",
+#     TRUE ~ "Motor neuron axon projection area")) %>%
+#   na.omit()
+
+## Perineurial data - 46F-GAL4
+# df <- perineurial.df %>% 
+#   group_by(Label) %>%
+#   summarise(sum_Area = sum(Area)) %>%
+#   ungroup() %>%
+#   mutate(condition = case_when(
+#     str_detect(Label, "Repo_Gal4_cd8_GFP_control") ~ "Repo Control",
+#     str_detect(Label, "46F_Gal4_cd8_GFP_control") ~ "46F Control",
+#     str_detect(Label, "46F_Gal4_cd8_GFP_GD") ~ "46F>Lac RNAi",
+#     str_detect(Label, "Repo_Gal4_cd8_GFP_GD") ~ "Repo>Lac RNAi")) %>%
+#   mutate(channel = case_when(
+#     str_detect(Label, "C1") ~ "Glial projection area",
+#     TRUE ~ "Motor neuron axon projection area")) %>%
+#   na.omit()
+```
+
+## Get stats
+```{r}
+df %>%
+  group_by(condition) %>%
+  shapiro_test(sum_Area) %>%
+  add_significance()
+stats <- df %>%
+  group_by(channel) %>%
+  wilcox_test(sum_Area ~ condition) %>%
+  add_significance()
+```
+
+## Plot
+```{r}
+df$condition <- factor(df$condition, levels = c("Repo Control", "Repo>Lac RNAi", "Nrv2 Control", "Nrv2>Lac RNAi"))
+
+ggplot(df, aes(x=condition, y=sum_Area, fill = condition)) + 
+  geom_violin(color = NA, trim = FALSE) +
+  geom_quasirandom(width = 0.25, size = 1) +
+  facet_wrap(~ channel, scales = "free") + 
+  stat_compare_means(comparisons = list(c("Repo Control", "Nrv2 Control"), c("Repo Control", "Repo>Lac RNAi"), c("Nrv2 Control", "Nrv2>Lac RNAi")), method = "wilcox.test", label = 'p.signif') +
+  ggtitle("Comparison of glial and neuronal areas for Lac knockdown in wrapping glia") +
+  xlab(NULL) + ylab(expression(paste("Area (",mu, m^2,")",sep=""))) +
+  theme_bw() +
+  # theme(panel.grid.major = element_blank(),
+  #       panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 10),)+
+  theme(legend.position = "none") +
+  scale_fill_viridis(discrete = TRUE, option = "plasma", alpha = 0.2) +
+  geom_pointrange(stat = "summary", colour = "#C53270", size = 0.5) +
+  scale_y_continuous(limits = c(-10, NA))
+
+ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/Nrv2_GAL4_Lac_areas.pdf",
+       width = 12 * 0.62, height = 6 * 0.62,
+       device = cairo_pdf)
+```
+
+## Get ratios
+```{r}
+ratios <- df %>% mutate(image_id = str_remove(Label, "_C[:digit:].tif")) %>%
+  dplyr::select(-Label) %>%
+  pivot_wider(values_from = sum_Area, names_from = channel)%>%
+  mutate(ratio = Glia/HRP)
+```
+
