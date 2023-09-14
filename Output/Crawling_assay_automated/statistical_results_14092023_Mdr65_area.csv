@@ -1,0 +1,7 @@
+".y.","group1","group2","n1","n2","statistic","p","p.adj","p.adj.signif"
+"sum_Area","Mdr65 Control","Mdr65>Lac RNAi",80,76,-0.720503357703161,0.471215133118002,1,"ns"
+"sum_Area","Mdr65 Control","Repo Control",80,80,-0.416944167682327,0.676719246353407,1,"ns"
+"sum_Area","Mdr65 Control","Repo>Lac RNAi",80,64,-2.24581816061218,0.0247156575856339,0.148293945513803,"ns"
+"sum_Area","Mdr65>Lac RNAi","Repo Control",76,80,0.308939340168433,0.757367670465857,1,"ns"
+"sum_Area","Mdr65>Lac RNAi","Repo>Lac RNAi",76,64,-1.53973648879672,0.12362459865046,0.494498394601839,"ns"
+"sum_Area","Repo Control","Repo>Lac RNAi",80,64,-1.85271942948638,0.0639225836738644,0.319612918369322,"ns"

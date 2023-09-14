@@ -18,6 +18,7 @@ library(ggpubr)
 library(ggforce)
 library(viridis)
 `%!in%` = Negate(`%in%`)
+options(scipen=999)
 ```
 
 ## Read files in - KStim
@@ -29,8 +30,8 @@ wrapping.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_Nr
 
 ## Missing files
 ```{r}
-# Read FIJI output and add missing files
-file_list = list.files(path ="/Volumes/LaCie/Area Analysis Glial Subtypes/Nrv2/Original run/Nrv2_Output_New/", pattern = "*.tif", all.files = FALSE,
+# Read FIJI output and add missing file
+file_list = list.files(path ="/Volumes/Dalia_Data/Area Analysis Glial Subtypes/Nrv2/Nrv2_Output_New/", pattern = "*.tif", all.files = FALSE,
                        full.names = FALSE, recursive = FALSE, ignore.case = FALSE, include.dirs = FALSE, no.. = FALSE)
 
 for (f in file_list) {
@@ -38,6 +39,8 @@ for (f in file_list) {
   if (f %!in% wrapping.df$Label)
     wrapping.df = add_row(wrapping.df, Label = f, Area = 0)
 }
+
+# write_csv(perineurial.df, "./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_46F_GAL4_empty_added.csv")
 ```
 
 ## Clean dataframe
@@ -59,7 +62,7 @@ df <- wrapping.df %>%
 
 df$sum_Area[df$sum_Area > 1000] <- 0
 
-## Subperineurial data - 46F-GAL4
+## Subperineurial data - Mdr65-GAL4
 # df <- subperineurial.df %>%
 #   group_by(Label) %>%
 #   summarise(sum_Area = sum(Area)) %>%
@@ -74,8 +77,8 @@ df$sum_Area[df$sum_Area > 1000] <- 0
 #     TRUE ~ "Motor neuron axon projection area")) %>%
 #   na.omit()
 
-## Perineurial data - 46F-GAL4
-# df <- perineurial.df %>% 
+# Perineurial data - 46F-GAL4
+# df <- perineurial.df %>%
 #   group_by(Label) %>%
 #   summarise(sum_Area = sum(Area)) %>%
 #   ungroup() %>%
@@ -90,16 +93,39 @@ df$sum_Area[df$sum_Area > 1000] <- 0
 #   na.omit()
 ```
 
-## Get stats
+## Get stats - areas
 ```{r}
-df %>%
-  group_by(condition) %>%
-  shapiro_test(sum_Area) %>%
-  add_significance()
-stats <- df %>%
-  group_by(channel) %>%
-  wilcox_test(sum_Area ~ condition) %>%
-  add_significance()
+variables <- c("sum_Area")
+
+results <- map(variables, function(var) {
+  
+  # Check normality
+  norm_result <- df %>%
+    group_by(condition) %>%
+    shapiro_test(!!sym(var)) %>%
+    add_significance()
+  
+  # Print
+  print(norm_result)
+  
+  # Kruskal-Wallis test
+  kw_result <- df %>%
+    kruskal_test(reformulate('condition', response = var))
+  
+  # Print
+  print(kw_result)
+  
+  # Dunn test
+  dunn_results <- df %>%
+    dunn_test(reformulate('condition', response = var)) %>%
+    add_significance() %>% 
+    as_tibble()
+})
+
+# Combine results
+final_results <- bind_rows(results)
+
+write.csv(final_results, "./Output/Crawling_assay_automated/statistical_results_14092023_Nrv2_area.csv", row.names = FALSE)
 ```
 
 ## Plot
@@ -107,7 +133,7 @@ stats <- df %>%
 df$condition <- factor(df$condition, levels = c("Repo Control", "Repo>Lac RNAi", "Nrv2 Control", "Nrv2>Lac RNAi"))
 
 ggplot(df, aes(x=condition, y=sum_Area, fill = condition)) + 
-  geom_violin(color = NA, trim = FALSE) +
+  geom_violin(color = NA, trim = TRUE, scale = "width") +
   geom_quasirandom(width = 0.25, size = 1) +
   facet_wrap(~ channel, scales = "free") + 
   stat_compare_means(comparisons = list(c("Repo Control", "Nrv2 Control"), c("Repo Control", "Repo>Lac RNAi"), c("Nrv2 Control", "Nrv2>Lac RNAi")), method = "wilcox.test", label = 'p.signif') +
@@ -116,25 +142,86 @@ ggplot(df, aes(x=condition, y=sum_Area, fill = condition)) +
   theme_bw() +
   # theme(panel.grid.major = element_blank(),
   #       panel.grid.minor = element_blank())+
-  theme(plot.title = element_text(size = 10),
+  theme(plot.title = element_text(size = 12),
         axis.title.y = element_text(size = 10),
         axis.text.x = element_text(size = 7),
         axis.text.y = element_text(size = 10),)+
   theme(legend.position = "none") +
   scale_fill_viridis(discrete = TRUE, option = "plasma", alpha = 0.2) +
-  geom_pointrange(stat = "summary", colour = "#C53270", size = 0.5) +
-  scale_y_continuous(limits = c(-10, NA))
+  geom_pointrange(stat = "summary", colour = "#C53270", size = 0.5) 
 
-ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/Nrv2_GAL4_Lac_areas.pdf",
-       width = 12 * 0.62, height = 6 * 0.62,
+ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis-Scripts/Output/Plots/CH5_Nrv2_GAL4_Lac_areas.pdf",
+       width = 12 * 0.62, height = 7 * 0.62,
        device = cairo_pdf)
 ```
 
 ## Get ratios
 ```{r}
-ratios <- df %>% mutate(image_id = str_remove(Label, "_C[:digit:].tif")) %>%
+ratios <- df %>% 
+  mutate(image_id = str_remove(Label, "_C[:digit:].tif")) %>%
   dplyr::select(-Label) %>%
-  pivot_wider(values_from = sum_Area, names_from = channel)%>%
-  mutate(ratio = Glia/HRP)
+  pivot_wider(values_from = sum_Area, names_from = channel) %>%
+  mutate(ratio = `Glial projection area` / `Motor neuron axon projection area`)
 ```
+
+## Get stats - ratios
+```{r}
+variables <- c("ratio")
+
+results <- map(variables, function(var) {
+  
+  # Check normality
+  norm_result <- ratios %>%
+    group_by(condition) %>%
+    shapiro_test(!!sym(var)) %>%
+    add_significance()
+  
+  # Print
+  print(norm_result)
+  
+  # Kruskal-Wallis test
+  kw_result <- ratios %>%
+    kruskal_test(reformulate('condition', response = var))
+  
+  # Print
+  print(kw_result)
+  
+  # Dunn test
+  dunn_results <- ratios %>%
+    dunn_test(reformulate('condition', response = var)) %>%
+    add_significance() %>% 
+    as_tibble()
+})
+
+# Combine results
+final_results_ratios <- bind_rows(results)
+
+write.csv(final_results_ratios, "./Output/Crawling_assay_automated/statistical_results_14092023_Nrv2_ratios.csv", row.names = FALSE)
+```
+
+```{r}
+ratios$condition <- factor(ratios$condition, levels = c("Repo Control", "Repo>Lac RNAi", "Nrv2 Control", "Nrv2>Lac RNAi"))
+
+ggplot(ratios, aes(x=condition, y=ratio, fill = condition)) + 
+  geom_violin(color = NA, trim = TRUE, scale = "width") +
+  geom_quasirandom(width = 0.25, size = 1) +
+  stat_compare_means(comparisons = list(c("Repo Control", "Nrv2 Control"), c("Repo Control", "Repo>Lac RNAi"), c("Nrv2 Control", "Nrv2>Lac RNAi")), method = "t.test", label = 'p.signif') +
+  ggtitle("Comparison of glial to neuronal area ratios for Lac knockdown in wrapping glia") +
+  xlab(NULL) + ylab("Ratio (Glial/motor neuron projection area)") +
+  theme_bw() +
+  # theme(panel.grid.major = element_blank(),
+  #       panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8),)+
+  theme(legend.position = "none") +
+  scale_fill_viridis(discrete = TRUE, option = "plasma", alpha = 0.2) +
+  geom_pointrange(stat = "summary", colour = "#C53270", size = 0.5) 
+
+ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis-Scripts/Output/Plots/CH5_Nrv2_GAL4_Lac_ratios.pdf",
+       width = 10 * 0.5, height = 7 * 0.5,
+       device = cairo_pdf)
+```
+
 

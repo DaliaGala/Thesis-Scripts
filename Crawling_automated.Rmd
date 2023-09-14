@@ -26,22 +26,22 @@ library(viridis)
 
 ## Prepare Analysis Dataframe
 
-### Import raw 'Tracks' data 
+### Import raw 'Tracks' data from original repo - this code will not work without original repo
 
 ```{r}
-bio_output_dir <- "./OK6_gs2/Results/"
-bio_outputs <- list.files(bio_output_dir, pattern = ".csv", full.names = TRUE)
-
-bio_raw <- future_map_dfr(bio_outputs, function(x){
-  filename <- basename(x)
-  tracks <- read_csv(x) %>%
-    mutate(filename = filename)
-})
-
-bio_raw <- bio_raw %>%
-  mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label))
-
-qsave(bio_raw %>% dplyr::select(-contour), "./OK6_gs2/Results/bio_raw.qs")
+# bio_output_dir <- "./OK6_gs2/Results/"
+# bio_outputs <- list.files(bio_output_dir, pattern = ".csv", full.names = TRUE)
+# 
+# bio_raw <- future_map_dfr(bio_outputs, function(x){
+#   filename <- basename(x)
+#   tracks <- read_csv(x) %>%
+#     mutate(filename = filename)
+# })
+# 
+# bio_raw <- bio_raw %>%
+#   mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label))
+# 
+# qsave(bio_raw %>% dplyr::select(-contour), "./OK6_gs2/Results/bio_raw.qs")
 
 # bio_raw <- qread("./Mdr65/Results/bio_raw.qs")
 ```
@@ -49,107 +49,110 @@ qsave(bio_raw %>% dplyr::select(-contour), "./OK6_gs2/Results/bio_raw.qs")
 ### Filter for high confidence larvae
 
 ```{r}
-## Filter for those tracked in the first 5 seconds 
-candidate_larvae1 <- bio_raw %>%
-  filter(time < 5) %>%
-  group_by(larva_id) %>%
-  summarise(frequency = n()) %>%
-  mutate(mean_frequency = mean(frequency)) %>%
-  filter(frequency >= mean_frequency) %>%
-  ungroup() %>%
-  pull(larva_id)
-
-## Filter for those that are flash-larvae
-candidate_larvae2 <- bio_raw %>%
-  filter(larva_id %in% candidate_larvae1) %>%
-  arrange(larva_id, time) %>%
-  group_by(larva_id) %>%
-  filter(cumsum(v >= 50) < 1) %>%
-  ungroup() %>%
-  pull(larva_id) %>% unique()
-
-## Take at most centre n number of larvae
-centre_x <- 470
-centre_y <- 350
-max_number_of_larvae <- 5
-
-candidate_larvae3 <- bio_raw %>%
-  filter(larva_id %in% candidate_larvae1) %>%
-  filter(frame == 2) %>%
-  mutate(dist_from_centre = (centre_x - x)^2 + (centre_y - y)^2) %>%
-  group_by(filename) %>%
-  slice_min(dist_from_centre, n = max_number_of_larvae) %>%
-  ungroup() %>%
-  pull(larva_id) %>% unique()
-
-## Filter for those tracked for at least 2 seconds (e.g. 60 frames for 30 fps)
-candidate_larvae4 <- bio_raw %>%
-  filter(larva_id %in% candidate_larvae3) %>%
-  group_by(larva_id) %>%
-  summarise(frames = n()) %>%
-  ungroup() %>%
-  filter(frames >= 60) %>%
-  pull(larva_id) %>% unique()
-
-## Filter for abrupt decrease in area (removes the ones kept tracked even when the animal reaches the edge)
-min_area_threshold <- 75
-candidate_larvae5 <- bio_raw %>%
-  filter(larva_id %in% candidate_larvae4) %>%
-  arrange(larva_id, time) %>%
-  group_by(larva_id) %>%
-  filter(cumsum(area <= min_area_threshold) < 1) %>%
-  ungroup() %>%
-  pull(larva_id) %>% unique()
-
-## Filter for those that teleported & merged ones
-candidate_larvae6 <- bio_raw %>%
-  filter(larva_id %in% candidate_larvae5) %>%
-  arrange(larva_id, time) %>%
-  group_by(larva_id) %>%
-  mutate(Jumped = case_when(dist >= 5 ~ TRUE, TRUE ~ FALSE)) %>%
-  filter(cumsum(Jumped)<1) %>%
-  filter(!is_merged == TRUE) %>%
-  ungroup()
-
-##Filter for ones which crawl along the edge - stop tracking past some radius distance
-radius <- 310
-bio_within_radius <- candidate_larvae6 %>%
-  arrange(larva_id, time) %>%
-  group_by(larva_id) %>%
-  mutate("Distance_from_Centre" = sqrt((x - centre_x)^2 + (y - centre_y)^2)) %>%
-  mutate(Include = case_when(Distance_from_Centre >= radius ~ TRUE, TRUE ~ FALSE)) %>%
-  filter(cumsum(Include)<1) %>%
-  ungroup()
-
-## Filter for those tracked for too little frames
-candidate_larvae7 <- bio_within_radius %>%
-  group_by(larva_id) %>%
-  summarise(n = length(unique(time)))%>%
-  filter(n > 2) %>%
-  pull(larva_id) %>% unique()
-
-## Get confidence filtered dataframe
-bio_confident <- bio_within_radius %>%
-  filter(larva_id %in% candidate_larvae7) 
-
-## Check how many confident larvae were tracked per video 
-bio_confident %>%
-  group_by(filename) %>%
-  summarise(n = length(unique(track_label))) -> tmp1
-
-to_remove <- c("OK6_CTRL6_larva_6", "OK6_CTRL7_larva_21", "OK6_CTRL7_larva_22", "OK6_GD4_larva_2", "OK6_KK4_larva_10")
-
-# to_remove <- c("Nrv2_Control_8_larva_2", "Nrv2_lac_GD_7_larva_5", "Nrv2_lac_GD_8_larva_9", "Nrv2_lac_GD_8_larva_4")
-
-# to_remove <- c("Mdr_control_3_larva_2", "Mdr_lac_GD_2_larva_15", "Mdr_lac_GD_2_larva_3")
-
-bio_confident_after_removed <- bio_confident %>%
-  filter(!(larva_id %in% to_remove))
-
-qsave(bio_confident_after_removed, "./OK6_gs2/Results/bio_confident_filtered.qs")
+# ## Filter for those tracked in the first 5 seconds 
+# candidate_larvae1 <- bio_raw %>%
+#   filter(time < 5) %>%
+#   group_by(larva_id) %>%
+#   summarise(frequency = n()) %>%
+#   mutate(mean_frequency = mean(frequency)) %>%
+#   filter(frequency >= mean_frequency) %>%
+#   ungroup() %>%
+#   pull(larva_id)
+# 
+# ## Filter for those that are flash-larvae
+# candidate_larvae2 <- bio_raw %>%
+#   filter(larva_id %in% candidate_larvae1) %>%
+#   arrange(larva_id, time) %>%
+#   group_by(larva_id) %>%
+#   filter(cumsum(v >= 50) < 1) %>%
+#   ungroup() %>%
+#   pull(larva_id) %>% unique()
+# 
+# ## Take at most centre n number of larvae
+# centre_x <- 470
+# centre_y <- 350
+# max_number_of_larvae <- 5
+# 
+# candidate_larvae3 <- bio_raw %>%
+#   filter(larva_id %in% candidate_larvae1) %>%
+#   filter(frame == 2) %>%
+#   mutate(dist_from_centre = (centre_x - x)^2 + (centre_y - y)^2) %>%
+#   group_by(filename) %>%
+#   slice_min(dist_from_centre, n = max_number_of_larvae) %>%
+#   ungroup() %>%
+#   pull(larva_id) %>% unique()
+# 
+# ## Filter for those tracked for at least 2 seconds (e.g. 60 frames for 30 fps)
+# candidate_larvae4 <- bio_raw %>%
+#   filter(larva_id %in% candidate_larvae3) %>%
+#   group_by(larva_id) %>%
+#   summarise(frames = n()) %>%
+#   ungroup() %>%
+#   filter(frames >= 60) %>%
+#   pull(larva_id) %>% unique()
+# 
+# ## Filter for abrupt decrease in area (removes the ones kept tracked even when the animal reaches the edge)
+# min_area_threshold <- 75
+# candidate_larvae5 <- bio_raw %>%
+#   filter(larva_id %in% candidate_larvae4) %>%
+#   arrange(larva_id, time) %>%
+#   group_by(larva_id) %>%
+#   filter(cumsum(area <= min_area_threshold) < 1) %>%
+#   ungroup() %>%
+#   pull(larva_id) %>% unique()
+# 
+# ## Filter for those that teleported & merged ones
+# candidate_larvae6 <- bio_raw %>%
+#   filter(larva_id %in% candidate_larvae5) %>%
+#   arrange(larva_id, time) %>%
+#   group_by(larva_id) %>%
+#   mutate(Jumped = case_when(dist >= 5 ~ TRUE, TRUE ~ FALSE)) %>%
+#   filter(cumsum(Jumped)<1) %>%
+#   filter(!is_merged == TRUE) %>%
+#   ungroup()
+# 
+# ##Filter for ones which crawl along the edge - stop tracking past some radius distance
+# radius <- 310
+# bio_within_radius <- candidate_larvae6 %>%
+#   arrange(larva_id, time) %>%
+#   group_by(larva_id) %>%
+#   mutate("Distance_from_Centre" = sqrt((x - centre_x)^2 + (y - centre_y)^2)) %>%
+#   mutate(Include = case_when(Distance_from_Centre >= radius ~ TRUE, TRUE ~ FALSE)) %>%
+#   filter(cumsum(Include)<1) %>%
+#   ungroup()
+# 
+# ## Filter for those tracked for too little frames
+# candidate_larvae7 <- bio_within_radius %>%
+#   group_by(larva_id) %>%
+#   summarise(n = length(unique(time)))%>%
+#   filter(n > 2) %>%
+#   pull(larva_id) %>% unique()
+# 
+# ## Get confidence filtered dataframe
+# bio_confident <- bio_within_radius %>%
+#   filter(larva_id %in% candidate_larvae7) 
+# 
+# ## Check how many confident larvae were tracked per video 
+# bio_confident %>%
+#   group_by(filename) %>%
+#   summarise(n = length(unique(track_label))) -> tmp1
+# 
+# to_remove <- c("OK6_CTRL6_larva_6", "OK6_CTRL7_larva_21", "OK6_CTRL7_larva_22", "OK6_GD4_larva_2", "OK6_KK4_larva_10")
+# 
+# # to_remove <- c("Nrv2_Control_8_larva_2", "Nrv2_lac_GD_7_larva_5", "Nrv2_lac_GD_8_larva_9", "Nrv2_lac_GD_8_larva_4")
+# 
+# # to_remove <- c("Mdr_control_3_larva_2", "Mdr_lac_GD_2_larva_15", "Mdr_lac_GD_2_larva_3")
+# 
+# bio_confident_after_removed <- bio_confident %>%
+#   filter(!(larva_id %in% to_remove))
+# 
+# qsave(bio_confident_after_removed, "./OK6_gs2/Results/bio_confident_filtered.qs")
 ```
 
+# START HERE TO REPRODUCE FROM DATA
+
 # Read processed data
+
 ```{r}
 bio_confident_after_removed <- qread("./Data/CH5_Crawling_assay_automated/OK6_bio_confident_filtered.qs")
 ```
@@ -272,8 +275,8 @@ bio_summary <- perform_analysis(bio_confident_anno) %>%
 #   )) %>%
 #   mutate(replicate = str_extract(larva_id, "\\d")) %>%
 #   filter(genotype != "46F KK")
-# 
-# bio_summary <- perform_analysis(bio_confident_anno) %>% 
+
+# bio_summary <- perform_analysis(bio_confident_anno) %>%
 #   distinct() %>%
 #   mutate(replicate = str_extract(larva_id, "\\d")) %>%
 #   mutate(mean_speed_real_units = mean_speed * 85/1950)
@@ -282,19 +285,41 @@ bio_summary %>%
   group_by(genotype) %>%
   summarise(n = n()) %>% 
   arrange(desc(n))
-
 ```
 
 ## Create summary and perform stats
 ```{r}
-bio_summary %>%
-  group_by(genotype) %>% 
-  shapiro_test(mean_speed_real_units) %>%
-  add_significance()
+variables <- c("mean_speed_real_units", "index_straightness", "DC", "SDDC")
 
-bio_summary %>% 
-  dunn_test(mean_speed_real_units ~ genotype) %>%
-  add_significance() %>% as_tibble() -> tmp
+results <- map(variables, function(var) {
+  
+  # Check normality
+  norm_result <- bio_summary %>%
+    group_by(genotype) %>%
+    shapiro_test(!!sym(var)) %>%
+    add_significance()
+  
+  # Print
+  print(norm_result)
+  
+  # Kruskal-Wallis test
+  kw_result <- bio_summary %>%
+    kruskal_test(reformulate('genotype', response = var))
+  
+  # Print
+  print(kw_result)
+  
+  # Dunn test
+  dunn_results <- bio_summary %>%
+    dunn_test(reformulate('genotype', response = var)) %>%
+    add_significance() %>% 
+    as_tibble()
+})
+
+# Combine results
+final_results <- bind_rows(results)
+
+write.csv(final_results, "./Output/Crawling_assay_automated/statistical_results_14092023_OK6_crawling.csv", row.names = FALSE)
 
 # OK6
 stat_comparisons <- list(
@@ -315,12 +340,13 @@ stat_comparisons <- list(
 #   c("Mdr65-GAL4 Control", "Mdr65-GAL4 > Lac RNAi")
 # )
 
-# 46F 
+# # 46F 
 # stat_comparisons <- list(
 #   c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi"),
 #   c("Repo-GAL4 Control", "46F-GAL4 Control"),
 #   c("46F-GAL4 Control", "46F-GAL4 > Lac RNAi")
 # )
+
 ```
 
 ## Plot analysis to PDF
@@ -342,15 +368,18 @@ ordered_levels <- c("OK6-GAL4 Control", "OK6-GAL4 > Lac RNAi")
 # Define the desired order Mdr65
 # ordered_levels <- c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi", "Mdr65-GAL4 Control", "Mdr65-GAL4 > Lac RNAi")
 
+# Define the desired order 46F
+# ordered_levels <- c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi", "46F-GAL4 Control", "46F-GAL4 > Lac RNAi")
+
 bio_summary <- bio_summary %>%
   mutate(genotype = factor(genotype, levels = ordered_levels))
 
 
-pdf("./plot_02092023_OK6_analysis.pdf", width = 7, height = 5)
+pdf("./Output/Plots/CH5_14092023_OK6_analysis_crawling_parameters.pdf", width = 7, height = 5)
 map(things_to_plot, ~ bio_summary %>%
   ggplot(aes_string(x = "genotype", y = .x, fill = "genotype")) + 
-  geom_violin(color = 'NA', alpha = 0.4) +
-  geom_quasirandom(width = 0.3, alpha = 0.9, size = 2, stroke = 0) +
+  geom_violin(color = 'NA', alpha = 0.2, trim = TRUE) +
+  geom_quasirandom(width = 0.25, alpha = 0.9, size = 2, stroke = 0) +
   scale_fill_manual(values = colors) +
   labs(title = .x,
        x = "",
@@ -358,7 +387,9 @@ map(things_to_plot, ~ bio_summary %>%
   theme_bw() +
   theme(plot.title = element_text(hjust = 0.5),
         legend.position = "none") + 
-  stat_compare_means(comparisons = stat_comparisons, method = "wilcox.test", label = "p.signif"))
+  stat_compare_means(comparisons = stat_comparisons, method = "wilcox.test", label = "p.signif") +
+  geom_pointrange(stat = "summary", colour = "#C53270", size = 0.5))
+
 dev.off()
 ```
 
@@ -425,6 +456,6 @@ plot <- ggplot() +
 
 plot
 
-ggsave("./plot_02092023_OK6_tracks_plasma.pdf", width = 7 * 0.7, height = 6 * 0.6, device = cairo_pdf)
+ggsave("./Output/Plots/CH5_02092023_OK6_tracks_plasma.pdf", width = 7 * 0.7, height = 6 * 0.6, device = cairo_pdf)
 ```
 
