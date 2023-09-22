@@ -69,7 +69,7 @@ result_df$Filename <- gsub("_TIF_C3", "", result_df$Filename)
 
 # Import smFISH molecules in glial cells data
 ```{r}
-dataframe <- read_csv("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Data/CH5_NrxIV_GFP_Lac_smFISH/final_results_Nrx_IV_Lac_smFISH.csv")
+dataframe <- read_csv(".//Data/CH5_NrxIV_GFP_Lac_smFISH/final_results_Nrx_IV_Lac_smFISH.csv")
 ```
 
 # Create clean df
@@ -115,7 +115,7 @@ df_longer %>%
 # Calculate statistics
 ```{r}
 stats <- df_longer %>%
-  t_test(Value ~ Original_Column) %>%
+  wilcox_test(Value ~ Original_Column) %>%
   add_significance()
 ```
 

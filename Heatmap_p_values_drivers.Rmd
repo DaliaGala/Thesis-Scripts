@@ -1,0 +1,99 @@
+---
+title: "Heatmap_p_values_drivers"
+output: html_document
+date: "2023-09-17"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(trajr)
+library(qs)
+library(skimr)
+library(rstatix)
+library(ggbeeswarm)
+library(hrbrthemes)
+library(patchwork)
+library(ggpubr)
+library(ggplot2)
+library(ggforce)
+library(viridis)
+library(furrr)
+library(colorspace)
+library(reshape2)
+`%!in%` = Negate(`%in%`)
+options(scipen = 999)
+```
+
+# Import data
+```{r}
+area_results <- read_csv("./Output/Crawling_assay_automated/statistical_results_area_all.csv")
+crawling_results <- read_csv("./Output/Crawling_assay_automated/statistical_results_all_crawling.csv")
+```
+
+# Bind
+```{r}
+result_df <- rbind(area_results[, c("type", "condition", "p")], crawling_results[, c("type", "condition", "p")])
+```
+
+```{r}
+area_statistics_for_plotting <- result_df %>%
+  mutate(p = case_when(
+    p < 0.0001 ~ "**** < 0.0001",
+    p < 0.001 ~ "*** < 0.001",
+    p < 0.01 ~ "** < 0.01",
+    p < 0.05 ~ "* < 0.05",
+    TRUE ~ "N.S."
+  )) %>%
+  mutate(type = case_when(
+    type == "Glia" ~ "Glial area",
+    type == "Neurite" ~ "Neurite area",
+    type == "ratio_Glia_Neurite" ~ "Ratio Glial/Neurite",
+    type == "mean_speed_real_units" ~ "Crawling speed",
+    type == "index_straightness" ~ "Path straightness",
+    type == "DC" ~ "Movement linearity",
+    type == "SDDC" ~ "Movement irregularity")) %>%
+    mutate(genotype = case_when(
+      str_detect(condition, "Nrv2") ~ "Nrv2",
+      str_detect(condition, "46F") ~ "46F",
+      str_detect(condition, "Mdr65") ~ "Mdr65",
+      str_detect(condition, "Repo") ~ "Repo",
+      str_detect(condition, "OK6") ~ "OK6"))
+```
+
+# Set order
+```{r}
+desired_order_condition <- c("Repo", "Mdr65", "Nrv2", "46F", "OK6")
+area_statistics_for_plotting$genotype <- factor(area_statistics_for_plotting$genotype, levels = desired_order_condition)
+
+desired_order_type <- c("Glial area", "Neurite area", "Ratio Glial/Neurite", "Crawling speed", "Path straightness","Movement linearity", "Movement irregularity")
+
+area_statistics_for_plotting$type <- factor(area_statistics_for_plotting$type, levels = rev(desired_order_type))
+```
+
+# Set colours
+```{r}
+color_mapping = c("**** < 0.0001" = "#3E134F","*** < 0.001" = "#C53270", "** < 0.01" = "#F36E35", "* < 0.05" = "#F8B83C", "N.S." = "gray90")
+```
+
+# Plot heatmap
+```{r}
+ggplot(area_statistics_for_plotting, aes(x=genotype, y=type)) + 
+  geom_tile(aes(fill=p)) +
+  scale_fill_manual(values=color_mapping) + 
+  labs(title="Heatmap of p-values of experimental measures", fill="p-value") +
+  theme_void() +  
+  theme(
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10),
+        axis.text.x = element_text(size = 8, color = "#4D4D4D"),
+        axis.text.y = element_text(size = 10, color = "#4D4D4D", hjust = 1)
+        ) +
+  coord_fixed(ratio = 1)
+
+# Save figure
+ggsave("./Output/Plots/CH5_17092023_drivers_heatmap.pdf",
+       width = 12 * 0.4, height = 12 * 0.4,
+       device = cairo_pdf)
+```

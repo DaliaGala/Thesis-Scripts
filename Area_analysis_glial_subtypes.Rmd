@@ -19,50 +19,52 @@ library(ggforce)
 library(viridis)
 `%!in%` = Negate(`%in%`)
 options(scipen=999)
+library(reshape2)
 ```
 
 ## Read files in - KStim
 ```{r}
-# perineurial.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_46F_GAL4.csv")
-# subperineurial.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_Mdr65_GAL4.csv")
-wrapping.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_Nrv2_GAL4.csv")
+perineurial.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Clean_dfs/Results_Area_46F_GAL4_clean.csv")
+subperineurial.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Clean_dfs/Results_Area_Mdr65_GAL4_clean.csv")
+wrapping.df <- read_csv("./Data/CH5_Glial_Areas_Subtype_Analysis/Clean_dfs/Results_Area_Nrv2_GAL4_clean.csv")
 ```
 
 ## Missing files
 ```{r}
-# Read FIJI output and add missing file
-file_list = list.files(path ="/Volumes/Dalia_Data/Area Analysis Glial Subtypes/Nrv2/Nrv2_Output_New/", pattern = "*.tif", all.files = FALSE,
-                       full.names = FALSE, recursive = FALSE, ignore.case = FALSE, include.dirs = FALSE, no.. = FALSE)
+## Read FIJI output and add missing file
+# file_list = list.files(path ="/Volumes/Dalia_Data/Area Analysis Glial Subtypes/Mdr/Mdr_Repo_Output_Triangle/", pattern = "*.tif", all.files = FALSE,
+#                        full.names = FALSE, recursive = FALSE, ignore.case = FALSE, include.dirs = FALSE, no.. = FALSE)
+# 
+# for (f in file_list) {
+#   f = str_replace(f, "^ROI_", "")
+#   if (f %!in% subperineurial.df$Label)
+#     subperineurial.df = add_row(subperineurial.df, Label = f, Area = 0)
+# }
 
-for (f in file_list) {
-  f = str_replace(f, "^ROI_", "")
-  if (f %!in% wrapping.df$Label)
-    wrapping.df = add_row(wrapping.df, Label = f, Area = 0)
-}
-
-# write_csv(perineurial.df, "./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_46F_GAL4_empty_added.csv")
+# write_csv(subperineurial.df, "./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_Mdr65_GAL4_empty_added.csv")
 ```
 
 ## Clean dataframe
 ```{r}
-## Wrapping data - Nrv2-GAL4
-df <- wrapping.df %>%
-  group_by(Label) %>%
-  summarise(sum_Area = sum(Area)) %>%
-  ungroup() %>%
-  mutate(condition = case_when(
-    str_detect(Label, "Repo_GFP_CTRL") ~ "Repo Control",
-    str_detect(Label, "Nrv2_GFP_CTRL") ~ "Nrv2 Control",
-    str_detect(Label, "Nrv2_GFP_GD") ~ "Nrv2>Lac RNAi",
-    str_detect(Label, "Repo_GFP_GD") ~ "Repo>Lac RNAi")) %>%
-  mutate(channel = case_when(
-    str_detect(Label, "C1") ~ "Glial projection area",
-    TRUE ~ "Motor neuron axon projection area")) %>%
-  na.omit()
+# Wrapping data - Nrv2-GAL4
+# df <- wrapping.df %>%
+#   group_by(Label) %>%
+#   summarise(sum_Area = sum(Area)) %>%
+#   ungroup() %>%
+#   mutate(condition = case_when(
+#     str_detect(Label, "Repo_GFP_CTRL") ~ "Repo Control",
+#     str_detect(Label, "Nrv2_GFP_CTRL") ~ "Nrv2 Control",
+#     str_detect(Label, "Nrv2_GFP_GD") ~ "Nrv2>Lac RNAi",
+#     str_detect(Label, "Repo_GFP_GD") ~ "Repo>Lac RNAi")) %>%
+#   mutate(channel = case_when(
+#     str_detect(Label, "C1") ~ "Glial projection area",
+#     TRUE ~ "Motor neuron axon projection area")) %>%
+#   na.omit()
+# 
+# df$sum_Area[df$sum_Area > 1000] <- 0
+# write_csv(df, "./Data/CH5_Glial_Areas_Subtype_Analysis/Clean_dfs/Results_Area_Nrv2_GAL4_clean.csv")
 
-df$sum_Area[df$sum_Area > 1000] <- 0
-
-## Subperineurial data - Mdr65-GAL4
+# Subperineurial data - Mdr65-GAL4
 # df <- subperineurial.df %>%
 #   group_by(Label) %>%
 #   summarise(sum_Area = sum(Area)) %>%
@@ -76,6 +78,8 @@ df$sum_Area[df$sum_Area > 1000] <- 0
 #     str_detect(Label, "C1") ~ "Glial projection area",
 #     TRUE ~ "Motor neuron axon projection area")) %>%
 #   na.omit()
+# 
+# write_csv(df, "./Data/CH5_Glial_Areas_Subtype_Analysis/Results_Area_Mdr65_GAL4_clean.csv")
 
 # Perineurial data - 46F-GAL4
 # df <- perineurial.df %>%
@@ -91,10 +95,15 @@ df$sum_Area[df$sum_Area > 1000] <- 0
 #     str_detect(Label, "C1") ~ "Glial projection area",
 #     TRUE ~ "Motor neuron axon projection area")) %>%
 #   na.omit()
+# 
+# write_csv(df, "./Data/CH5_Glial_Areas_Subtype_Analysis/Clean_dfs/Results_Area_46F_GAL4_clean.csv")
 ```
 
 ## Get stats - areas
 ```{r}
+df <- wrapping.df %>%
+  filter(channel == "Glial projection area")
+
 variables <- c("sum_Area")
 
 results <- map(variables, function(var) {
@@ -125,10 +134,10 @@ results <- map(variables, function(var) {
 # Combine results
 final_results <- bind_rows(results)
 
-write.csv(final_results, "./Output/Crawling_assay_automated/statistical_results_14092023_Nrv2_area.csv", row.names = FALSE)
+write.csv(final_results, "./Output/Crawling_assay_automated/statistical_results_16092023_Nrv2_area_glia.csv", row.names = FALSE)
 ```
 
-## Plot
+## Plot areas
 ```{r}
 df$condition <- factor(df$condition, levels = c("Repo Control", "Repo>Lac RNAi", "Nrv2 Control", "Nrv2>Lac RNAi"))
 
@@ -157,7 +166,7 @@ ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis-Sc
 
 ## Get ratios
 ```{r}
-ratios <- df %>% 
+ratios <- wrapping.df %>% 
   mutate(image_id = str_remove(Label, "_C[:digit:].tif")) %>%
   dplyr::select(-Label) %>%
   pivot_wider(values_from = sum_Area, names_from = channel) %>%
@@ -196,9 +205,10 @@ results <- map(variables, function(var) {
 # Combine results
 final_results_ratios <- bind_rows(results)
 
-write.csv(final_results_ratios, "./Output/Crawling_assay_automated/statistical_results_14092023_Nrv2_ratios.csv", row.names = FALSE)
+# write.csv(final_results_ratios, "./Output/Crawling_assay_automated/statistical_results_14092023_Nrv2_ratios.csv", row.names = FALSE)
 ```
 
+# Plot ratios
 ```{r}
 ratios$condition <- factor(ratios$condition, levels = c("Repo Control", "Repo>Lac RNAi", "Nrv2 Control", "Nrv2>Lac RNAi"))
 
@@ -224,4 +234,124 @@ ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis-Sc
        device = cairo_pdf)
 ```
 
+# Plot summary plots
+```{r}
+# Define a function to filter the dataframes
+filter_conditions <- function(df) {
+  df %>% 
+    filter(condition %in% c("Repo Control", "Repo>Lac RNAi"))
+}
+
+# Create a list of your dataframes
+list_of_dfs <- list(perineurial.df, subperineurial.df, wrapping.df)
+
+# Use `purrr::map_dfr` to apply the filter function and then bind the rows
+repo.df <- purrr::map_dfr(list_of_dfs, filter_conditions)
+```
+
+# Run stats on all dataframes
+```{r}
+wrapping.df <- wrapping.df %>%
+  filter(!(condition %in% c("Repo Control", "Repo>Lac RNAi")))
+
+perineurial.df <- perineurial.df %>%
+  filter(!(condition %in% c("Repo Control", "Repo>Lac RNAi")))
+
+subperineurial.df <- subperineurial.df %>%
+  filter(!(condition %in% c("Repo Control", "Repo>Lac RNAi")))
+
+process_dataframe <- function(df, control_group) {
+  
+  dev_area_cleaned <- df %>%
+    mutate(Label = str_replace(Label, "_C[:digit:].tif", "")) %>%
+    pivot_wider(id_cols = c(Label, condition), values_from = sum_Area, names_from = channel) %>%
+    dplyr::rename("Neurite" = "Motor neuron axon projection area") %>%
+    dplyr::rename("Glia" = "Glial projection area") %>%
+    mutate(ratio_Glia_Neurite = Glia / Neurite) %>%
+    pivot_longer(cols = c(Glia, Neurite, ratio_Glia_Neurite), names_to = "type")
+
+dev_area_mean <- dev_area_cleaned %>%
+    group_by(condition, type) %>%
+    summarise(
+        mean = mean(value)
+    ) %>%
+    ungroup()
+
+  dev_area_foldchange <- left_join(
+    filter(dev_area_mean, condition != control_group),
+    filter(dev_area_mean, condition == control_group) %>%
+      dplyr::select(type, "control_mean" = mean),
+    by = "type"
+  ) %>%
+    mutate(foldchange = mean / control_mean)
+
+  dev_area_statistics <- dev_area_cleaned %>%
+    group_by(type) %>%
+    wilcox_test(value ~ condition, ref.group = control_group) %>%
+    dplyr::select(type, "condition" = group2, statistic, p, starts_with("n")) %>%
+    left_join(dev_area_foldchange, by = c("type", "condition"))
+
+  dev_area_statistics
+}
+
+list_of_dfs_for_combined <- list(perineurial.df, subperineurial.df, wrapping.df, repo.df)
+control_groups <- c("46F Control", "Mdr65 Control", "Nrv2 Control", "Repo Control")
+
+combined_result <- purrr::map2_dfr(list_of_dfs_for_combined, control_groups, process_dataframe)
+write.csv(combined_result, "./Output/Crawling_assay_automated/statistical_results_area_all.csv", row.names = FALSE)
+```
+
+# Add significance and clean up labels
+```{r}
+area_statistics_for_plotting <- combined_result %>%
+  mutate(p = case_when(
+    p < 0.0001 ~ "**** < 0.0001",
+    p < 0.001 ~ "*** < 0.001",
+    p < 0.01 ~ "** < 0.01",
+    p < 0.05 ~ "* < 0.05",
+    TRUE ~ "N.S."
+  )) %>%
+  mutate(type = case_when(
+    type == "Glia" ~ "Glial area",
+    type == "Neurite" ~ "Neurite area",
+    type == "ratio_Glia_Neurite" ~ "Ratio Glial/Neurite"
+  ))
+```
+
+# Plot
+```{r}
+colours <- c(sequential_hcl(n = 7, palette = "Inferno", rev = FALSE)[3:5], "gray70")
+
+gene_order_dev <- area_statistics_for_plotting %>%
+  filter(type == "Glial area") %>%
+  arrange(foldchange) %>% pull(condition)
+
+area_statistics_for_plotting %>%
+  mutate(condition = fct_relevel(condition, gene_order_dev)) %>%
+  ggplot(aes(x = condition, y = foldchange, colour = p)) +
+  geom_segment(aes(xend = condition, y = 1, yend = foldchange), colour = "gray50", size = 0.3) + 
+  geom_point(size = 1.5) + 
+  geom_hline(yintercept = 1, linetype = "dashed", colour = "gray70", size = 0.2) +
+  coord_flip(ylim = c(0.25, 1.8)) +
+  labs(
+    x = "", 
+    y = "Average foldchange over Control",
+    colour = "P-value"
+  ) + 
+  scale_colour_manual(values = colours) + 
+  facet_wrap(~ type) +
+  theme_bw(base_size = 6) + 
+  theme(
+    legend.text = element_text(size = 4),
+    legend.title = element_text(size = 5),
+    axis.text.x = element_text(size = 3)
+    ) +
+  guides(colour = guide_legend(keywidth = 0.1, keyheight = 0.5)) -> dev_plot
+
+dev_plot
+# Save figure
+ggsave("./Output/Plots/CH5_subtypes_areas_combined.pdf",
+       width = 11 * 0.3937, height = 5 * 0.38937,
+       device = cairo_pdf)
+```
 

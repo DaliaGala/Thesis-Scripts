@@ -22,6 +22,9 @@ library(ggpubr)
 library(ggplot2)
 library(ggforce)
 library(viridis)
+library(furrr)
+library(colorspace)
+`%!in%` = Negate(`%in%`)
 ```
 
 ## Prepare Analysis Dataframe
@@ -154,9 +157,8 @@ library(viridis)
 # Read processed data
 
 ```{r}
-bio_confident_after_removed <- qread("./Data/CH5_Crawling_assay_automated/OK6_bio_confident_filtered.qs")
+bio_confident_after_removed <- qread("./Data/CH5_Crawling_assay_automated/Mdr65_bio_confident_filtered.qs")
 ```
-
 
 ### Perform analysis
 ```{r}
@@ -210,22 +212,22 @@ perform_analysis <- function(x){
 }
 
 # OK6
-bio_confident_anno <- bio_confident_after_removed %>%
-  mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
-  mutate(genotype = case_when(
-    str_detect(larva_id, "OK6") & str_detect(larva_id, "CTRL") ~ "OK6-GAL4 Control",
-    str_detect(larva_id, "OK6") & str_detect(larva_id, "GD") ~ "OK6-GAL4 > Lac RNAi",
-    str_detect(larva_id, "OK6") & str_detect(larva_id, "KK") ~ "OK6 KK",
-    str_detect(larva_id, "Repo") & str_detect(larva_id, "Control") ~ "Repo-GAL4 Control",
-    str_detect(larva_id, "Repo") & str_detect(larva_id, "GD") ~ "Repo-GAL4 > Lac RNAi"
-  )) %>%
-  mutate(replicate = str_extract(larva_id, "\\d")) %>%
-  filter(genotype != "OK6 KK")
-
-bio_summary <- perform_analysis(bio_confident_anno) %>%
-  distinct() %>%
-  mutate(replicate = str_extract(larva_id, "\\d")) %>%
-  mutate(mean_speed_real_units = mean_speed * 85/650)
+# bio_confident_anno <- bio_confident_after_removed %>%
+#   mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
+#   mutate(genotype = case_when(
+#     str_detect(larva_id, "OK6") & str_detect(larva_id, "CTRL") ~ "OK6-GAL4 Control",
+#     str_detect(larva_id, "OK6") & str_detect(larva_id, "GD") ~ "OK6-GAL4 > Lac RNAi",
+#     str_detect(larva_id, "OK6") & str_detect(larva_id, "KK") ~ "OK6 KK",
+#     str_detect(larva_id, "Repo") & str_detect(larva_id, "Control") ~ "Repo-GAL4 Control",
+#     str_detect(larva_id, "Repo") & str_detect(larva_id, "GD") ~ "Repo-GAL4 > Lac RNAi"
+#   )) %>%
+#   mutate(replicate = str_extract(larva_id, "\\d")) %>%
+#   filter(genotype != "OK6 KK")
+# 
+# bio_summary <- perform_analysis(bio_confident_anno) %>%
+#   distinct() %>%
+#   mutate(replicate = str_extract(larva_id, "\\d")) %>%
+#   mutate(mean_speed_real_units = mean_speed * 85/650)
 
 # Nrv2
 # bio_confident_anno <- bio_confident_after_removed %>%
@@ -275,19 +277,19 @@ bio_summary <- perform_analysis(bio_confident_anno) %>%
 #   )) %>%
 #   mutate(replicate = str_extract(larva_id, "\\d")) %>%
 #   filter(genotype != "46F KK")
-
+# 
 # bio_summary <- perform_analysis(bio_confident_anno) %>%
 #   distinct() %>%
 #   mutate(replicate = str_extract(larva_id, "\\d")) %>%
 #   mutate(mean_speed_real_units = mean_speed * 85/1950)
 
-bio_summary %>%
-  group_by(genotype) %>%
-  summarise(n = n()) %>% 
-  arrange(desc(n))
+# bio_summary %>%
+#   group_by(genotype) %>%
+#   summarise(n = n()) %>%
+#   arrange(desc(n))
 ```
 
-## Create summary and perform stats
+## Create summary and perform stats - individual subtype
 ```{r}
 variables <- c("mean_speed_real_units", "index_straightness", "DC", "SDDC")
 
@@ -320,11 +322,14 @@ results <- map(variables, function(var) {
 final_results <- bind_rows(results)
 
 write.csv(final_results, "./Output/Crawling_assay_automated/statistical_results_14092023_OK6_crawling.csv", row.names = FALSE)
+```
 
+## Set stat comparisons
+```{r}
 # OK6
-stat_comparisons <- list(
-  c("OK6-GAL4 Control", "OK6-GAL4 > Lac RNAi")
-)
+# stat_comparisons <- list(
+#   c("OK6-GAL4 Control", "OK6-GAL4 > Lac RNAi")
+# )
 
 # Nrv2
 # stat_comparisons <- list(
@@ -334,11 +339,11 @@ stat_comparisons <- list(
 # )
 
 # Mdr65
-# stat_comparisons <- list(
-#   c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi"),
-#   c("Repo-GAL4 Control", "Mdr65-GAL4 Control"),
-#   c("Mdr65-GAL4 Control", "Mdr65-GAL4 > Lac RNAi")
-# )
+stat_comparisons <- list(
+  c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi"),
+  c("Repo-GAL4 Control", "Mdr65-GAL4 Control"),
+  c("Mdr65-GAL4 Control", "Mdr65-GAL4 > Lac RNAi")
+)
 
 # # 46F 
 # stat_comparisons <- list(
@@ -346,10 +351,9 @@ stat_comparisons <- list(
 #   c("Repo-GAL4 Control", "46F-GAL4 Control"),
 #   c("46F-GAL4 Control", "46F-GAL4 > Lac RNAi")
 # )
-
 ```
 
-## Plot analysis to PDF
+## Plot analysis to PDF - individual subtype
 ```{r}
 things_to_plot <- c("mean_speed_real_units", "index_straightness", "DC", "SDDC") %>% set_names()
 
@@ -360,13 +364,13 @@ colors <- colors[colors != "#FCFFA4FF"]
 colors <- colors[colors != "#000004FF"]
 
 # Define the desired order Nrv2
-ordered_levels <- c("OK6-GAL4 Control", "OK6-GAL4 > Lac RNAi")
+# ordered_levels <- c("OK6-GAL4 Control", "OK6-GAL4 > Lac RNAi")
 
 # Define the desired order Nrv2
 # ordered_levels <- c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi", "Nrv2-GAL4 Control", "Nrv2-GAL4 > Lac RNAi")
 
 # Define the desired order Mdr65
-# ordered_levels <- c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi", "Mdr65-GAL4 Control", "Mdr65-GAL4 > Lac RNAi")
+ordered_levels <- c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi", "Mdr65-GAL4 Control", "Mdr65-GAL4 > Lac RNAi")
 
 # Define the desired order 46F
 # ordered_levels <- c("Repo-GAL4 Control", "Repo-GAL4 > Lac RNAi", "46F-GAL4 Control", "46F-GAL4 > Lac RNAi")
@@ -375,10 +379,10 @@ bio_summary <- bio_summary %>%
   mutate(genotype = factor(genotype, levels = ordered_levels))
 
 
-pdf("./Output/Plots/CH5_14092023_OK6_analysis_crawling_parameters.pdf", width = 7, height = 5)
+pdf("./Output/Plots/CH5_16092023_Mdr65_analysis_crawling_parameters.pdf", width = 7, height = 5)
 map(things_to_plot, ~ bio_summary %>%
   ggplot(aes_string(x = "genotype", y = .x, fill = "genotype")) + 
-  geom_violin(color = 'NA', alpha = 0.2, trim = TRUE) +
+  geom_violin(color = 'NA', alpha = 0.2, trim = TRUE, scale = "width") +
   geom_quasirandom(width = 0.25, alpha = 0.9, size = 2, stroke = 0) +
   scale_fill_manual(values = colors) +
   labs(title = .x,
@@ -395,7 +399,6 @@ dev.off()
 
 #Plot all tracks to pdf
 ```{r}
-
 centre_x <- 470
 centre_y <- 350
 radius = 320
@@ -457,5 +460,227 @@ plot <- ggplot() +
 plot
 
 ggsave("./Output/Plots/CH5_02092023_OK6_tracks_plasma.pdf", width = 7 * 0.7, height = 6 * 0.6, device = cairo_pdf)
+```
+
+# Get summary plots - all subtypes
+
+# Import raw data for all subtypes
+```{r}
+perineurial <- qread("./Data/CH5_Crawling_assay_automated/46F_bio_confident_filtered.qs")
+subperineurial <-qread("./Data/CH5_Crawling_assay_automated/Mdr65_bio_confident_filtered.qs")
+wrapping <- qread("./Data/CH5_Crawling_assay_automated/Nrv2_bio_confident_filtered.qs")
+motor_neuron <- qread("./Data/CH5_Crawling_assay_automated/OK6_bio_confident_filtered.qs")
+```
+
+# Process all data
+```{r}
+# Wrapping
+bio_conf_wrap <- wrapping %>%
+  mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
+  mutate(genotype = case_when(
+    str_detect(larva_id, "Nrv2") & str_detect(larva_id, "Control") ~ "Nrv2 Control",
+    str_detect(larva_id, "Nrv2") & str_detect(larva_id, "GD") ~ "Nrv2>Lac RNAi",
+    str_detect(larva_id, "Nrv2") & str_detect(larva_id, "KK") ~ "Nrv2 KK",
+    str_detect(larva_id, "Repo") & str_detect(larva_id, "Control") ~ "Repo Control",
+    str_detect(larva_id, "Repo") & str_detect(larva_id, "GD") ~ "Repo>Lac RNAi"
+  )) %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  filter(genotype != "Nrv2 KK")
+
+bio_summary_wrap <- perform_analysis(bio_conf_wrap) %>%
+  distinct() %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  mutate(mean_speed_real_units = mean_speed * 85/1000)
+
+# Subperineurial
+bio_conf_sub <- subperineurial %>%
+  mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
+  mutate(genotype = case_when(
+    str_detect(larva_id, "Mdr") & str_detect(larva_id, "control") ~ "Mdr65 Control",
+    str_detect(larva_id, "Mdr") & str_detect(larva_id, "GD") ~ "Mdr65>Lac RNAi",
+    str_detect(larva_id, "Mdr") & str_detect(larva_id, "KK") ~ "Mdr65 KK",
+    str_detect(larva_id, "Repo") & str_detect(larva_id, "control") ~ "Repo Control",
+    str_detect(larva_id, "Repo") & str_detect(larva_id, "GD") ~ "Repo>Lac RNAi"
+  )) %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  filter(genotype != "Mdr65 KK")
+
+bio_summary_sub <- perform_analysis(bio_conf_sub) %>%
+  distinct() %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  mutate(mean_speed_real_units = mean_speed * 85/650)
+
+# Perineurial
+bio_conf_peri <- perineurial %>%
+  mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
+  mutate(genotype = case_when(
+    str_detect(larva_id, "46F") & str_detect(larva_id, "control") ~ "46F Control",
+    str_detect(larva_id, "46F") & str_detect(larva_id, "GD") ~ "46F>Lac RNAi",
+    str_detect(larva_id, "46F") & str_detect(larva_id, "KK") ~ "46F KK",
+    str_detect(larva_id, "Repo") & str_detect(larva_id, "control") ~ "Repo Control",
+    str_detect(larva_id, "Repo") & str_detect(larva_id, "GD") ~ "Repo>Lac RNAi"
+  )) %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  filter(genotype != "46F KK")
+
+bio_summary_peri <- perform_analysis(bio_conf_peri) %>%
+  distinct() %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  mutate(mean_speed_real_units = mean_speed * 85/1950)
+
+# OK6
+bio_confident_MN <- motor_neuron %>%
+  mutate(larva_id = paste0(str_remove(filename, ".csv"), "_larva_", track_label)) %>%
+  mutate(genotype = case_when(
+    str_detect(larva_id, "OK6") & str_detect(larva_id, "CTRL") ~ "OK6 Control",
+    str_detect(larva_id, "OK6") & str_detect(larva_id, "GD") ~ "OK6 > Lac RNAi",
+    str_detect(larva_id, "OK6") & str_detect(larva_id, "KK") ~ "OK6 KK")) %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  filter(genotype != "OK6 KK")
+
+bio_summary_MN <- perform_analysis(bio_confident_MN) %>%
+  distinct() %>%
+  mutate(replicate = str_extract(larva_id, "\\d")) %>%
+  mutate(mean_speed_real_units = mean_speed * 85/650)
+```
+
+# Check n numbers
+```{r}
+bio_summary_repo %>%
+  group_by(genotype) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n))
+```
+
+
+# Filter for Repo and create Repo only dataframe
+```{r}
+filter_conditions <- function(df, suffix) {
+  df %>% 
+    filter(genotype %in% c("Repo Control", "Repo>Lac RNAi")) %>%
+    mutate(larva_id = paste0(larva_id, suffix))
+}
+
+suffixes <- c("_peri", "_sub", "_wrap")
+list_of_dfs <- list(bio_summary_peri, bio_summary_sub, bio_summary_wrap)
+
+bio_summary_repo <- purrr::map2_dfr(list_of_dfs, suffixes, filter_conditions)
+```
+
+# Get combined statistics
+```{r}
+wrapping.df <- bio_summary_wrap %>%
+  filter(!(genotype %in% c("Repo Control", "Repo>Lac RNAi")))
+
+perineurial.df <- bio_summary_peri %>%
+  filter(!(genotype %in% c("Repo Control", "Repo>Lac RNAi")))
+
+subperineurial.df <- bio_summary_sub %>%
+  filter(!(genotype %in% c("Repo Control", "Repo>Lac RNAi")))
+
+process_dataframe <- function(df, control_group) {
+  
+  dev_area_cleaned <- df %>%
+    pivot_longer(cols = c("mean_speed_real_units", "index_straightness", "DC", "SDDC"), names_to = "type") 
+
+  dev_area_mean <- dev_area_cleaned %>%
+    group_by(genotype, type) %>%
+    summarise(
+        mean = mean(value)
+    ) %>%
+    ungroup()
+
+  dev_area_foldchange <- left_join(
+    filter(dev_area_mean, genotype != control_group),
+    filter(dev_area_mean, genotype == control_group) %>%
+      dplyr::select(type, "control_mean" = mean),
+    by = "type"
+  ) %>%
+    mutate(foldchange = mean / control_mean)
+
+  dev_area_statistics <- dev_area_cleaned %>%
+    group_by(type) %>%
+    wilcox_test(value ~ genotype, ref.group = control_group) %>%
+    dplyr::select(type, "condition" = group2, statistic, p, starts_with("n")) %>%
+    left_join(dev_area_foldchange, by = c("type", "condition" = "genotype"))
+
+  dev_area_statistics
+}
+
+list_of_dfs_for_combined <- list(perineurial.df, subperineurial.df, wrapping.df, bio_summary_repo, bio_summary_MN)
+control_groups <- c("46F Control", "Mdr65 Control", "Nrv2 Control", "Repo Control", "OK6 Control")
+
+combined_result <- purrr::map2_dfr(list_of_dfs_for_combined, control_groups, process_dataframe)
+# write_csv(combined_result, "./Output/Crawling_assay_automated/statistical_results_all_crawling.csv")
+```
+
+```{r}
+combined_result <- read_csv("./Output/Crawling_assay_automated/statistical_results_all_crawling.csv")
+```
+
+# Assign values for plotting
+```{r}
+crawling_statistics_for_plotting <- combined_result %>%
+  mutate(
+    p_numeric = p,  # preserve the original numeric p values
+    p = case_when(
+      p < 0.0001 ~ "**** < 0.0001",
+      p < 0.001 ~ "*** < 0.001",
+      p < 0.01 ~ "** < 0.01",
+      p < 0.05 ~ "* < 0.05",
+      TRUE ~ "N.S."
+    )
+  ) %>%
+  mutate(type = case_when(
+    type == "mean_speed_real_units" ~ "Crawling speed",
+    type == "index_straightness" ~ "Path straightness",
+    type == "DC" ~ "Movement linearity",
+    type == "SDDC" ~ "Movement irregularity"
+  )) %>%
+  mutate(log2foldchange = log2(foldchange)) %>%
+  mutate(p_label = str_c("p=", format(p_numeric, digits = 2, scientific = TRUE))) %>%  # use p_numeric here
+  mutate(p_label_pos = case_when(
+    log2foldchange >= 0 ~ log2foldchange + 0.08,
+    log2foldchange < 0 ~ log2foldchange - 0.08
+  ))
+
+```
+
+# Plot all to pdf
+```{r}
+colours <- c(sequential_hcl(n = 7, palette = "Inferno", rev = FALSE)[2:5], "gray70")
+
+gene_order_dev <- crawling_statistics_for_plotting %>%
+  filter(type == "Crawling speed") %>%
+  arrange(desc(foldchange)) %>% pull(condition)
+
+crawling_statistics_for_plotting %>%
+  mutate(condition = fct_relevel(condition, gene_order_dev)) %>%
+  ggplot(aes(x = condition, y = log2foldchange, fill = p)) + 
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, colour = "gray20", size = 0.1) +
+  geom_text(aes(y = p_label_pos, label = p_label), cex = 1.4) +
+  coord_cartesian()+
+  # (ylim = c(-2.5, 1)) +
+  labs(
+    x = "", 
+    y = "log2 Foldchange over Control",
+    fill = "P-value"
+  ) + 
+  scale_fill_manual(values = colours) +
+  facet_wrap(~ type) +
+  theme_bw(base_size = 7) + 
+  theme(
+    legend.text = element_text(size = 5),
+    legend.title = element_text(size = 5),
+    axis.text.x = element_text(size = 3.5)
+    ) +
+  guides(fill = guide_legend(keywidth = 0.3, keyheight = 0.3)) -> dev_plot
+
+dev_plot
+# Save figure
+ggsave("./Output/Plots/CH5_17092023_subtypes_crawling_combined.pdf",
+       width = 11 * 0.3937, height = 8 * 0.38937,
+       device = cairo_pdf)
 ```
 

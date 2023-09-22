@@ -1,0 +1,4 @@
+"comparison1","comparison2","variable","p_value","p_value_adjusted","significance"
+"Repo Control","46F Control","sum_Area",0.34212680636416,1,"ns"
+"Repo Control","Repo>Lac RNAi","sum_Area",0.0367775441082912,0.110332632324874,"ns"
+"46F Control","46F>Lac RNAi","sum_Area",0.811147571573631,1,"ns"

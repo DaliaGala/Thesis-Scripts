@@ -19,105 +19,335 @@ options(scipen = 999)
 
 # ANALYSIS
 
-# Import whole NMJ Lac::YFP molecules data
-```{r}
-# Get a list of all CSV files in the directory
-csv_files <- list.files(path ="./Data/CH5_Lac_YFP_KStim_smFISH/KStim_Lac_YFP_smFISH_whole_image_molecules_csvs",
-                        pattern = "*.csv", 
-                        full.names = TRUE)
-
-# Function to read a CSV and return its filename and number of rows
-get_file_info <- function(file) {
-  data <- read_csv(file, col_types = cols())
-  return(data.frame(Filename = str_remove_all(basename(file), ".csv"), Number_of_rows = nrow(data)))
-}
-
-# Use the map_df function from purrr to apply the function to each file and bind the results into one dataframe
-result_df <- purrr::map_df(csv_files, get_file_info)
-
-clean_whole_NMJ <- result_df %>%
-  mutate(condition = case_when(
-    str_detect(Filename, "_stim_") ~ "Stimulated",
-    str_detect(Filename, "unstim_mock") ~ "Mock stimulated",
-    str_detect(Filename, "unstim_open") ~ "Unstimulated")) %>%
-  filter(condition != "Mock stimulated")
-```
-
 # Import smFISH molecules in glial cells data
 ```{r}
-dataframe <- read_csv("./Data/CH5_Lac_YFP_KStim_smFISH/final_results_lac_molecules_glia.csv")
+dataframe <- read_csv("./BigFISH_pypeline/final_results_KStim_Lac_YFP_smFISH_Lac_Area.csv")
 
 clean_glial_molecules <- dataframe %>%
   mutate(condition = case_when(
     str_detect(Filename, "_stim_") ~ "Stimulated",
-    str_detect(Filename, "unstim_mock") ~ "Mock stimulated",
     str_detect(Filename, "unstim_open") ~ "Unstimulated")) %>%
-  rename("no_mRNA_molecules" = "Common Coordinates") %>%
-  filter(condition != "Mock stimulated") %>%
+  rename("Lac::YFP Area" = "Common Coordinates") %>%
   mutate(Filename = gsub("^ROI_", "", Filename)) %>%
-  mutate(Filename = gsub(".tif", "", Filename))
+  mutate(Filename = gsub("_C2_cropped.tif", "", Filename))
 ```
 
-# Read in area df for glia areas
+# Import Lac::YFP area data
 ```{r}
-# Get a list of all CSV files in the directory
-file_list <- list.files(path ="./Data/CH5_Lac_YFP_KStim_smFISH/KStim_area_of_dilated_Lac_YFP_csvs/",
-                        pattern = "*.csv", 
-                        full.names = TRUE)
+file_list_glia = list.files(path = "./Data/CH5_Lac_YFP_KStim_smFISH/Areas_of_glia_neuron/Areas_intensity_glia/CSVs/",
+                       pattern = "*.csv",
+                       full.names = TRUE)
 
-# Use the map_df function from purrr
-areas_df <- map_df(file_list, ~ read_csv(.x, col_names = TRUE) %>%
-                             mutate(name = str_remove_all(basename(.x), ".csv")))
+df_glia <- map_df(file_list_glia, ~ read_csv(.x, col_names = TRUE) %>%
+                             mutate(Filename = str_remove_all(basename(.x), ".csv")))
+df_glia$Label = NULL
+df_glia$...1 = NULL
+```
 
-areas_df_clean_glia <- areas_df %>%
-  group_by(name) %>%
-  summarise(sum_Area = sum(Area)) %>%
+# Clean Lac::YFP area dataframe
+```{r}
+areas_glia_clean <- df_glia %>%
+  group_by(Filename) %>%
+  summarise("Lac_YFP_Area" = sum(Area)) %>%
   ungroup() %>%
+  mutate(
+    Filename = gsub("^Results_AreaROI_MAX_", "", Filename)) %>%
   mutate(condition = case_when(
-    str_detect(name, "_stim_") ~ "Stimulated",
-    str_detect(name, "unstim_mock") ~ "Mock stimulated",
-    str_detect(name, "unstim_open") ~ "Unstimulated")) %>%
-  filter(condition != "Mock stimulated") %>%
-  mutate(name = gsub("^Results_Area", "", name))
+    str_detect(Filename, "_stim_") ~ "Stimulated",
+    str_detect(Filename, "unstim_open") ~ "Unstimulated",
+    str_detect(Filename, "mock") ~ "Mock", )) %>%
+  filter(condition != "Mock")
 
-areas_df_clean_glia$name <- sub("(_C4).*", "\\1", areas_df_clean_glia$name)
+areas_glia_clean$condition = NULL
 ```
 
-#Merge areas of glia only with mRNA molecules in glia only
+# 
 ```{r}
-result_glia_only <- merge(clean_glial_molecules,
-                          areas_df_clean_glia[, c("name", "sum_Area")],
-                          by.x = "Filename",
-                          by.y = "name",
+glia <- merge(clean_glial_molecules,
+              areas_glia_clean[, c("Filename", "Lac_YFP_Area")],
+              by = "Filename",
+              all.x = TRUE)
+glia <- glia %>%
+  mutate(mol_per_area = `Lac::YFP Area`/Lac_YFP_Area)
+
+summary <- glia %>%
+  group_by(condition) %>%
+  summarise(
+    area_means = mean(`Lac_YFP_Area`, na.rm = TRUE),
+    molecules_means = mean(`Lac::YFP Area`, na.rm = TRUE)
+  )
+```
+
+```{r}
+glia %>%
+  group_by(condition) %>%
+  shapiro_test(mol_per_area) %>%
+  add_significance()
+```
+
+```{r}
+glia %>%
+  wilcox_test(mol_per_area ~ condition) %>%
+  add_significance()
+```
+
+# Import smFISH molecules in neuron data
+```{r}
+dataframe <- read_csv("./BigFISH_pypeline/final_results_KStim_Lac_YFP_smFISH_Neuron.csv")
+
+clean_neuron_molecules <- dataframe %>%
+  rename("α-HRP Area" = "Common Coordinates") %>%
+  mutate(Filename = gsub("^ROI_", "", Filename)) %>%
+  mutate(Filename = gsub("_C3_cropped.tif", "", Filename))
+```
+
+# Import neuronal area data
+```{r}
+file_list_neuron = list.files(path = "./Data/CH5_Lac_YFP_KStim_smFISH/Areas_of_glia_neuron/Areas_HRP/CSVs/",
+                       pattern = "*.csv",
+                       full.names = TRUE)
+
+df_neuron <- map_df(file_list_neuron, ~ read_csv(.x, col_names = TRUE) %>%
+                             mutate(Filename = str_remove_all(basename(.x), ".csv")))
+df_neuron$Label = NULL
+df_neuron$...1 = NULL
+```
+
+# Clean HRP data
+```{r}
+areas_neuron_clean <- df_neuron %>%
+  group_by(Filename) %>%
+  summarise("Neuron Area" = sum(Area)) %>%
+  ungroup() %>%
+  mutate(
+    Filename = gsub("^Results_AreaROI_MAX_", "", Filename)) %>%
+  mutate(condition = case_when(
+    str_detect(Filename, "_stim_") ~ "Stimulated",
+    str_detect(Filename, "unstim_open") ~ "Unstimulated",
+    str_detect(Filename, "mock") ~ "Mock", )) %>%
+  filter(condition != "Mock")
+
+areas_neuron_clean$condition = NULL
+```
+
+# Merge neuronal with glial molecules, get stats
+```{r}
+result_molecules <- merge(clean_glial_molecules,
+                          clean_neuron_molecules[, c("Filename", "α-HRP Area")],
+                          by = "Filename",
                           all.x = TRUE)
 
-result_glia_only <- result_glia_only[complete.cases(result_glia_only$sum_Area), ]
-result_glia_only <-
-  result_glia_only %>%
-   mutate(molecules_per_micron_sq = no_mRNA_molecules/sum_Area)
+longer_molecules <- result_molecules %>%
+  gather(key = "Original_Column", value = "no_mRNA_molecules", "Lac::YFP Area", "α-HRP Area")
+
+longer_molecules %>%
+  group_by(condition, Original_Column) %>%
+  shapiro_test(no_mRNA_molecules) %>%
+  add_significance()
+
+longer_molecules %>%
+  group_by(condition) %>%
+  wilcox_test(no_mRNA_molecules ~ Original_Column, p.adjust.method = "bonferroni") %>%
+  add_significance()
+```
+
+# Merge neuronal with glial areas
+```{r}
+result_areas <- merge(areas_glia_clean,
+                          areas_neuron_clean[, c("Filename", "Neuron Area")],
+                          by = "Filename",
+                          all.x = TRUE)
+```
+
+# Ratios
+```{r}
+result <- merge(result_molecules,
+                result_areas[, c("Filename", "Lac_YFP_Area", "Neuron Area")],
+                by = "Filename",
+                all.x = TRUE)
+
+result_annotated <- result %>%
+  mutate(mols_per_neuron = `α-HRP Area`/`Neuron Area`) %>%
+  mutate(mols_per_Lac = `Lac::YFP Area`/Lac_YFP_Area) %>%
+  mutate(Lac_to_axon_ratio_mols = (`Lac::YFP Area`/`α-HRP Area`)*100) %>%
+  mutate(Lac_to_axon_ratio_areas = (Lac_YFP_Area/`Neuron Area`)*100)
+
+df_longer <- result_annotated %>%
+  gather(key = "Original_Column", value = "Value", Lac_to_axon_ratio_mols:Lac_to_axon_ratio_areas)
+```
+
+# Get stats for area/mol ratio vs stim unstim condition
+```{r}
+result_annotated %>%
+  group_by(condition) %>%
+  shapiro_test(Lac_to_axon_ratio_areas) %>%
+  add_significance()
+
+result_annotated %>%
+  wilcox_test(Lac_to_axon_ratio_areas ~ condition) %>%
+  add_significance()
+```
+
+# Get stats for stim unstim condition vs area/mol ratio
+```{r}
+df_longer %>%
+  group_by(condition, Original_Column) %>%
+  shapiro_test(Value) %>%
+  add_significance()
+
+df_longer %>%
+  group_by(condition) %>%
+  wilcox_test(Value ~ Original_Column, p.adjust.method = "bonferroni") %>%
+  add_significance() -> stats
+```
+
+# Plot ratios vs stim unstim condition
+```{r}
+custom_labels <- c("Area ratio (Lac::YFP/HRP)", "Lac mRNA molecules ratio")
+# Organise factor
+df_longer$condition <- factor(df_longer$condition, levels = c("Unstimulated", "Stimulated"))
+
+ggplot(df_longer, aes(x = Original_Column, y = Value)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 2) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Lac_to_axon_ratio_areas", "Lac_to_axon_ratio_mols")), method = "t.test", label = "p.signif") +
+  theme_classic2() +
+  facet_wrap(~ condition)+
+  scale_x_discrete(labels = custom_labels)+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 12),
+        axis.title.y = element_text(size = 8),
+        axis.text.x = element_text(size = 6))+
+  labs(x = NULL,
+       title = "Lac mRNA molecules in motor neuron terminal and Lac::YFP area",
+       y = "Ratio of measure in Lac::YFP area to motor neuron terminal area (%)")
+
+ggsave("./Output/Plots/Lac_YFP_Lac_mRNA_ratios_glia_Neuron.pdf",
+       width = 15 * 0.38937, height = 10 * 0.38937,
+       device = cairo_pdf)
+
+```
+
+
+```{r}
+# Organise factor
+glia$condition <- factor(glia$condition, levels = c("Unstimulated", "Stimulated"))
+
+ggplot(glia, aes(x = condition, y = mol_per_area)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Unstimulated", "Stimulated")), method = "t.test", label = "p.signif") +
+  theme_classic2() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 10),
+        axis.title.y = element_text(size = 8),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Lac::YFP mRNA molecules per unit of Lac::YFP area",
+       y = expression(paste("Lac::YFP mRNA molecules per 1 (",mu, m^2,")",sep="")))
+
+ggsave("./Output/Plots/Lac_YFP_Lac_mRNA_Kstim_mol_per_area.pdf",
+       width = 10 * 0.38937, height = 10 * 0.38937,
+       device = cairo_pdf)
+```
+
+# Pivot longer for plotting compartment
+```{r}
+long <- result_neuron_glia %>% 
+  pivot_longer(
+    cols = c("α-HRP Area", "Lac::YFP Area"),
+    names_to = "compartment",
+    values_to = "no_mRNA_molecules"
+)
 ```
 
 #Check if normal - glia only
 ```{r}
-result_glia_only %>%
-  group_by(condition) %>%
-  shapiro_test(molecules_per_micron_sq) %>%
+long %>%
+  group_by(condition, compartment) %>%
+  shapiro_test(no_mRNA_molecules) %>%
   add_significance()
 ```
 
 # Calculate statistics - glia only
 ```{r}
-stats <- result_glia_only %>%
-  wilcox_test(molecules_per_micron_sq ~ condition, p.adjust.method = "bonferroni") %>%
+stats <- long %>%
+  group_by(compartment) %>%
+  wilcox_test(no_mRNA_molecules ~ condition, p.adjust.method = "bonferroni") %>%
   add_significance()
 ```
 
-# Plot - Lac::YFP mRNA molecules in glial projections only
+# Plot - Lac::YFP mRNA molecules vs compartment
 ```{r}
 # Organise factor
-result_glia_only$condition <- factor(result_glia_only$condition, levels = c("Unstimulated", "Stimulated"))
+long$condition <- factor(long$condition, levels = c("Unstimulated", "Stimulated"))
 
-ggplot(result_glia_only, aes(x = condition, y = molecules_per_micron_sq)) +
+ggplot(long, aes(x = condition, y = no_mRNA_molecules)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Unstimulated", "Stimulated")), method = "wilcox.test", label = "p.signif") +
+  theme_classic2() +
+  facet_wrap(~ compartment) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Lac::YFP mRNA molecules in different NMJ compartments",
+       y = "Number of Lac::YFP mRNA molecules")
+
+
+ggsave("./Output/Plots/CH5_Lac_RNAi_KStim_mRNA_NMJ_compartments.pdf",
+       width = 10 * 0.4, height = 10 * 0.4,
+       device = cairo_pdf)
+```
+
+# Plot - Lac::YFP mRNA molecules vs condition
+```{r}
+# Organise factor
+long$compartment <- factor(long$compartment, levels = c("Lac::YFP Area", "α-HRP Area"))
+
+ggplot(long, aes(x = compartment, y = no_mRNA_molecules)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Lac::YFP Area", "α-HRP Area")), method = "wilcox.test", label = "p.signif") +
+  theme_classic2() +
+  facet_wrap(~ condition) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Lac::YFP mRNA molecules before and after potassium stimulation",
+       y = "Number of Lac::YFP mRNA molecules")
+
+
+ggsave("./Output/Plots/CH5_Lac_RNAi_KStim_mRNA_NMJ_pre_post_stim.pdf",
+       width = 10 * 0.4, height = 10 * 0.4,
+       device = cairo_pdf)
+```
+
+# Get proportions of molecules
+```{r}
+result_neuron_glia<- 
+  result_neuron_glia %>%
+  mutate(ratio = (`Lac::YFP Area`/`α-HRP Area`)*100)
+```
+
+# Plot ratio
+```{r}
+# Organise factor
+result_neuron_glia$condition <- factor(result_neuron_glia$condition, levels = c("Unstimulated", "Stimulated"))
+
+ggplot(result_neuron_glia, aes(x = condition, y = ratio)) +
   geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
   stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
   stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
@@ -129,52 +359,12 @@ ggplot(result_glia_only, aes(x = condition, y = molecules_per_micron_sq)) +
         axis.title.y = element_text(size = 10),
         axis.text.x = element_text(size = 8))+
   labs(x = NULL,
-       title = "Lac::YFP mRNA molecules in NMJ glial projections",
-       y = expression(paste("Number of Lac::YFP mRNA molecules per ",mu, m^2,sep="")))
+       title = "Ratios of Lac mRNA molecules in Lac::YFP to α-HRP areas",
+       y = "Number of Lac::YFP mRNA molecules")
 
 
-ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/CH5_Lac_RNAi_KStim_mRNA_NMJ_glia_only_new.pdf",
+ggsave("./Output/Plots/CH5_Lac_RNAi_KStim_mRNA_NMJ_ratios_pre_post_stim.pdf",
        width = 10 * 0.4, height = 10 * 0.4,
        device = cairo_pdf)
 ```
 
-#Check if normal - whole NMJ
-```{r}
-clean_whole_NMJ %>%
-  group_by(condition) %>%
-  shapiro_test(Number_of_rows) %>%
-  add_significance()
-```
-
-# Calculate statistics - whole NMJ
-```{r}
-stats_whole_NMJ <- clean_whole_NMJ %>%
-  t_test(Number_of_rows ~ condition) %>%
-  add_significance()
-```
-
-# Plot - Lac::YFP in mRNA molecules in whole NMJ
-```{r}
-# Organise factor
-clean_whole_NMJ$condition <- factor(clean_whole_NMJ$condition, levels = c("Unstimulated", "Stimulated"))
-
-ggplot(clean_whole_NMJ, aes(x = condition, y = Number_of_rows)) +
-  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
-  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
-  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
-  stat_compare_means(comparisons = list(c("Unstimulated", "Stimulated")), method = "t.test", label = "p.signif") +
-  theme_classic2() +
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank())+
-  theme(plot.title = element_text(size = 10),
-        axis.title.y = element_text(size = 10),
-        axis.text.x = element_text(size = 8))+
-  labs(x = NULL,
-       title = "Lac::YFP mRNA molecules in the whole NMJ area",
-       y = "Number of Lac::YFP mRNA molecules")
-
-
-# ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/CH5_Lac_RNAi_KStim_mRNA_NMJ_whole_NMJ_area.pdf",
-#        width = 10 * 0.4, height = 10 * 0.4,
-#        device = cairo_pdf)
-```

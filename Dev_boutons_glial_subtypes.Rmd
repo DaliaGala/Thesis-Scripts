@@ -1,0 +1,195 @@
+---
+title: "Dev_boutons_glial_subtypes"
+output: pdf_document
+date: "2023-09-17"
+editor_options: 
+  chunk_output_type: console
+---
+## Environment
+
+```{r}
+library(tidyverse)
+library(trajr)
+library(qs)
+library(skimr)
+library(rstatix)
+library(ggbeeswarm)
+library(hrbrthemes)
+library(patchwork)
+library(ggpubr)
+library(ggplot2)
+library(ggforce)
+library(viridis)
+library(furrr)
+library(colorspace)
+`%!in%` = Negate(`%in%`)
+options(scipen = 999)
+```
+
+# Import data
+```{r}
+dev_boutons_subtypes <- read_csv("./Data/CH5_Dev_Boutons_Quant/dev_boutons_glial_subtypes.csv")
+```
+
+# Clean data
+```{r}
+variables <- c("Boutons")
+
+results <- map(variables, function(var) {
+  
+  # Check normality
+  norm_result <- dev_boutons_subtypes %>%
+    group_by(Set) %>%
+    shapiro_test(!!sym(var)) %>%
+    add_significance()
+  
+  # Print
+  print(norm_result)
+  
+  # Kruskal-Wallis test
+  kw_result <- dev_boutons_subtypes %>%
+    kruskal_test(reformulate('Set', response = var))
+  
+  # Print
+  print(kw_result)
+  
+  # Dunn test
+  dunn_results <- dev_boutons_subtypes %>%
+    dunn_test(reformulate('Set', response = var)) %>%
+    add_significance() %>% 
+    as_tibble()
+})
+
+# Combine results
+final_results <- bind_rows(results)
+
+write.csv(final_results, "./Output/statistical_results_18092023_dev_boutons_subtypes.csv", row.names = FALSE)
+```
+
+
+# Filter for Repo and create Repo only dataframe
+```{r}
+wrapping.df <- dev_boutons_subtypes %>%
+  filter(Set %in% c("Nrv2 Control", "Nrv2 RNAi"))
+
+repo.df <- dev_boutons_subtypes %>%
+  filter(Set %in% c("Repo Control", "Repo>Lac RNAi"))
+
+subperineurial.df <- dev_boutons_subtypes %>%
+  filter(Set %in% c("Mdr65 Control", "Mdr65>Lac RNAi"))
+
+perineurial.df <- dev_boutons_subtypes %>%
+  filter(Set %in% c("46F Control", "46F>Lac RNAi"))
+
+process_dataframe <- function(df, control_group) {
+  
+  means_df <- df %>%
+    group_by(Set) %>%
+    summarise(
+        mean = mean(Boutons)
+    ) %>%
+    ungroup() %>%
+    mutate(genotype = case_when(
+      str_detect(Set, "Nrv2") ~ "Nrv2",
+      str_detect(Set, "46F") ~ "46F",
+      str_detect(Set, "Mdr65") ~ "Mdr65",
+      str_detect(Set, "Repo") ~ "Repo"))
+
+  foldchange <- left_join(
+    filter(means_df, Set != control_group),
+    filter(means_df, Set == control_group) %>%
+      dplyr::select(genotype, "control_mean" = mean),
+    by = "genotype") %>%
+    mutate(foldchange = mean / control_mean)
+
+  statistics <- df %>%
+    wilcox_test(Boutons ~ Set, ref.group = control_group) %>%
+    dplyr::select("condition" = group2, statistic, p, starts_with("n")) %>%
+    left_join(foldchange, by = c("condition" = "Set"))
+
+  statistics
+}
+
+list_of_dfs_for_combined <- list(perineurial.df, subperineurial.df, wrapping.df, repo.df)
+control_groups <- c("46F Control", "Mdr65 Control", "Nrv2 Control", "Repo Control")
+
+combined_result <- purrr::map2_dfr(list_of_dfs_for_combined, control_groups, process_dataframe)
+```
+
+# Assign values for plotting
+```{r}
+dev_statistics_for_plotting <- combined_result %>%
+  mutate(
+    p_numeric = p,  # preserve the original numeric p values
+    p = case_when(
+      p < 0.0001 ~ "**** < 0.0001",
+      p < 0.001 ~ "*** < 0.001",
+      p < 0.01 ~ "** < 0.01",
+      p < 0.05 ~ "* < 0.05",
+      TRUE ~ "N.S."
+    )
+  ) %>%
+  mutate(log2foldchange = log2(foldchange)) %>%
+  mutate(p_label = str_c("p=", format(p_numeric, digits = 2))) %>%  # use p_numeric here
+  mutate(p_label_pos = case_when(
+    log2foldchange >= 0 ~ log2foldchange + 0.08,
+    log2foldchange < 0 ~ log2foldchange - 0.08
+  ))
+
+```
+
+# Plot all to pdf
+```{r}
+colours <- c(sequential_hcl(n = 7, palette = "Inferno", rev = FALSE)[5:5], "gray70")
+
+gene_order_dev <- dev_statistics_for_plotting %>%
+  arrange(desc(foldchange)) %>% pull(condition)
+
+dev_statistics_for_plotting %>%
+  mutate(condition = fct_relevel(condition, gene_order_dev)) %>%
+  ggplot(aes(x = condition, y = foldchange, fill = p)) + 
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, colour = "gray20", size = 0.1) +
+  geom_text(aes(y = p_label_pos, label = p_label), cex = 1.4) +
+  coord_cartesian()+
+  # (ylim = c(-2.5, 1)) +
+  labs(
+    x = "Driver used", 
+    y = "log2 Foldchange over Control",
+    fill = "P-value"
+  ) + 
+  scale_fill_manual(values = "gray70") +
+  theme_bw(base_size = 7) + 
+  theme(
+    legend.text = element_text(size = 5),
+    legend.title = element_text(size = 5),
+    axis.text.x = element_text(size = 5)
+    ) +
+  guides(fill = guide_legend(keywidth = 0.3, keyheight = 0.3)) -> dev_plot
+
+dev_plot
+# Save figure
+# ggsave("./Output/Plots/CH5_17092023_subtypes_dev_boutons.pdf",
+#        width = 11 * 0.2, height = 8 * 0.2,
+#        device = cairo_pdf)
+```
+
+```{r}
+ggplot(dev_boutons_subtypes, aes(x=Set, y=Boutons)) + 
+  geom_violin(color = NA, trim = TRUE, scale = "width") +
+  geom_jitter(width = 0.25, size = 3, alpha = 0.4) +
+  stat_compare_means(comparisons = list(c("Repo Control", "Repo>Lac RNAi"), c("Nrv2 Control", "Nrv2 RNAi"), c("Mdr65 Control", "Mdr65>Lac RNAi"), c("46F Control", "46F>Lac RNAi")), method = "wilcox.test", label = 'p') +
+  ggtitle("Comparison of ghost bouton numbers in unstimulated NMJs for Lac knockdown in various glial drivers") +
+  xlab(NULL) + ylab("Ghost boutons number") +
+  theme_bw() +
+  # theme(panel.grid.major = element_blank(),
+  #       panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 12),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8),)+
+  theme(legend.position = "none") +
+  scale_fill_viridis(discrete = TRUE, option = "plasma", alpha = 0.2) +
+  geom_pointrange(stat = "summary", colour = "#C53270", size = 0.5) 
+```
+

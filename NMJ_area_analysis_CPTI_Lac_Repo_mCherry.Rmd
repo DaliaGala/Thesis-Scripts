@@ -1,0 +1,91 @@
+---
+title: "NMJ_area_analysis_CPTI_Lac_Repo_mCherry"
+output: pdf_document
+date: "2023-09-18"
+editor_options: 
+  chunk_output_type: console
+---
+# R ENVIRONMENT 
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(rstatix)
+library(ggplot2)
+library(ggbeeswarm)
+library(ggpubr)
+library(readr)
+library(dplyr)
+library(stringr)
+library(readr)
+`%!in%` = Negate(`%in%`)
+options(scipen = 999)
+```
+
+## Read the data in
+```{r}
+glia_lac_data <- read_csv("/Users/daliagala/Documents/smFISH/Lac_CPTI_Repo_mCherry/Results_Channel_Areas_CPTI_Lac_Repo_mCherry/Results_Area.csv")
+```
+
+## Clean the data
+```{r}
+df <- glia_lac_data %>%
+  group_by(Label) %>%
+  summarise(sum_Area = sum(Area)) %>%
+  ungroup() %>%
+  mutate(channel = case_when(
+    str_detect(Label, "C2") ~ "Lac::YFP area",
+    TRUE ~ "Glial projection area"))
+```
+
+## Get means
+```{r}
+means <- df %>%
+    group_by(channel) %>%
+    summarise(
+        mean = mean(sum_Area)
+    ) %>%
+    ungroup()
+
+folchange <- means$mean[1] / means$mean[2]
+```
+
+## Check normality
+```{r}
+df %>%
+  group_by(channel) %>%
+  shapiro_test(sum_Area) %>%
+  add_significance()
+```
+
+# Stats
+```{r}
+stats <- df %>%
+  wilcox_test(sum_Area ~ channel) %>%
+  add_significance()
+```
+
+# Plot
+```{r}
+df$channel <- factor(df$channel, levels = c("Glial projection area","Lac::YFP area"))
+
+ggplot(df, aes(x = channel, y = sum_Area)) +
+  geom_jitter(width = 0.1, alpha = 0.3, size = 4) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.7, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  stat_compare_means(comparisons = list(c("Glial projection area","Lac::YFP area")), method = "wilcox.test", label = "p.signif") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(plot.title = element_text(size = 10),
+        axis.title.y = element_text(size = 8),
+        axis.text.x = element_text(size = 8))+
+  labs(x = NULL,
+       title = "Comparison of glial areas to Lac::YFP areas at the NMJ",
+       y = expression(paste("Area (",mu, m^2,")",sep="")))
+
+ggsave("./Output/Plots/CH5_Lac_YFP_Repo_Cherry_Areas.pdf",
+       width = 10 * 0.4, height = 8 * 0.4,
+       device = cairo_pdf)
+```
+

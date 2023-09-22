@@ -20,7 +20,7 @@ library(readr)
 
 # Import smFISH molecules in Syp GFP/mutant data
 ```{r}
-dataframe <- read_csv("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Data/CH5_Lac_exon_Syp_GFP_mutant/final_results_Syp_smFISH.csv")
+dataframe <- read_csv("./Data/CH5_Lac_exon_Syp_GFP_mutant/final_results_Syp_smFISH.csv")
 ```
 
 # Clean dataframe
@@ -67,7 +67,7 @@ ggplot(clean_molecules, aes(x = condition, y = no_mRNA_molecules)) +
        title = "Lac mRNA molecules in NMJ axon terminal projections in Syp mutant",
        y = expression(paste("Number of Lac mRNA molecules in the axon terminal projections")))
 
-ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Scripts/Output/Plots/Syp_mutant_Lac_Molecules.pdf",
+ggsave("./Thesis-Scripts/Output/Plots/CH5_Syp_mutant_Lac_Molecules.pdf",
        width = 10 * 0.5, height = 8 * 0.5,
        device = cairo_pdf)
 ```

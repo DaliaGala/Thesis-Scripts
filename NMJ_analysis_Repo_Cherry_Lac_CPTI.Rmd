@@ -1,0 +1,99 @@
+---
+title: "NMJ_analysis_Repo_Cherry_Lac_CPTI"
+output: pdf_document
+date: "2023-09-17"
+editor_options: 
+  chunk_output_type: console
+---
+
+# R ENVIRONMENT 
+
+```{r}
+library(tidyverse)
+library(patchwork)
+library(rstatix)
+library(ggpubr)
+library(stringr)
+library(ggbeeswarm)
+`%!in%` = Negate(`%in%`)
+options(scipen = 999)
+```
+
+# ANALYSIS
+
+# Import whole NMJ Lac::YFP molecules data
+```{r}
+# Get a list of all CSV files in the directory
+csv_files <- list.files(path ="./BigFISH_pypeline/CPTI_Lac_Repo_mCherry_smFISH",
+                        pattern = "*.csv", 
+                        full.names = TRUE)
+
+# Function to read a CSV and return its filename and number of rows
+get_file_info <- function(file) {
+  data <- read_csv(file, col_types = cols())
+  return(data.frame(Filename = str_remove_all(basename(file), ".csv"), Number_of_rows = nrow(data)))
+}
+
+# Use the map_df function from purrr to apply the function to each file and bind the results into one dataframe
+result_df <- purrr::map_df(csv_files, get_file_info)%>%
+  mutate(Filename = gsub("_C4", "", Filename))
+```
+
+```{r}
+dataframe <- read_csv("./BigFISH_pypeline/final_results_Repo_Cherry_Lac_YFP_smFISH.csv")
+
+clean_glial_molecules <- dataframe %>%
+  rename("no_mRNA_molecules" = "Common Coordinates") %>%
+  mutate(Filename = gsub("^ROI_", "", Filename)) %>%
+  mutate(Filename = gsub("_C3.tif", "", Filename)) %>%
+  mutate(genotype = "CPTI_Lac_Repo_Cherry")
+```
+
+```{r}
+all_plus_glial <- left_join(result_df, clean_glial_molecules, by = "Filename") %>%
+  mutate(pctg = (no_mRNA_molecules/Number_of_rows)*100)
+```
+
+```{r}
+df_long <- all_plus_glial %>% 
+  pivot_longer(cols = c(Number_of_rows, no_mRNA_molecules, pctg), names_to = "variable", values_to = "value")
+
+desired_order <- c("Number_of_rows", "no_mRNA_molecules", "pctg")
+df_long$variable <- factor(df_long$variable, levels = desired_order)
+```
+
+```{r}
+# Custom labelling function
+custom_labeller <- function(variable) {
+  labels <- c(
+    "Number_of_rows" = "Whole NMJ",
+    "no_mRNA_molecules" = "In NMJ glia",
+    "pctg" = "Percentages in glia"
+  )
+  return(labels[variable])
+}
+
+df_long %>%
+  ggplot(aes(x = genotype, y = value)) +
+  geom_quasirandom(width = 0.4, alpha = 0.3, size = 2) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.45, size = 0.6, color = "#C53270") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = 0.2, color = "#C53270", size = 1) +
+  scale_y_log10(limits = c(NA, 10000)) +
+  facet_wrap(~ variable, labeller = labeller(variable = custom_labeller)) +
+  theme_bw(base_size = 6) + 
+  theme(
+    legend.title = element_text(size = 8),
+    axis.text.x = NULL,
+    axis.ticks.x = NULL) +
+  labs(x = NULL,
+       title = "Numbers of Lac::YFP mRNA molecules in the NMJ",
+       y = "Log10(Measure)") -> new_plot
+
+new_plot
+
+# Save figure
+ggsave("./Output/Plots/CH5_Lac_YFP_Repo_Cherry_NMJ_molecules.pdf",
+       width = 8 * 0.3937, height = 8 * 0.38937,
+       device = cairo_pdf)
+```
+

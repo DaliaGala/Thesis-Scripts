@@ -1,0 +1,185 @@
+Label,sum_Area,condition,channel
+20220909_Nrv2_GFP_CTRL_L1_S2L_C1.tif,5.64,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L1_S2L_C3.tif,690.8380000000001,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L1_S2R_C1.tif,76.498,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L1_S2R_C3.tif,929.809,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L1_S3L_C1.tif,3.473,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L1_S3L_C3.tif,352.01,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L2_S2L_C1.tif,0,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L2_S2L_C3.tif,414.084,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L2_S3L_C1.tif,0,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L2_S3L_C3.tif,409.935,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L3_S2L_C1.tif,80.938,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L3_S2L_C3.tif,443.207,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L3_S2R_C1.tif,6.747,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L3_S2R_C3.tif,356.02000000000004,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L3_S3R_C1.tif,0,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L3_S3R_C3.tif,409.799,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L4_S2L_C1.tif,4.952,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L4_S2L_C3.tif,595.429,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L4_S2R_C1.tif,8.729,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L4_S2R_C3.tif,849.1790000000001,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L5_S2L_C1.tif,184.007,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L5_S2L_C3.tif,895.806,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L5_S3L_C1.tif,0,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L5_S3L_C3.tif,376.70500000000004,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L5_S4L_C1.tif,0,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L5_S4L_C3.tif,406.57300000000004,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L6_S3R_C1.tif,2.666,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L6_S3R_C3.tif,166.879,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L7_S2R_C1.tif,7.026,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L7_S2R_C3.tif,514.973,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L7_S3R_C1.tif,8.078,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L7_S3R_C3.tif,427.646,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_CTRL_L7_S4R_C1.tif,3.688,Nrv2 Control,Glial projection area
+20220909_Nrv2_GFP_CTRL_L7_S4R_C3.tif,268.748,Nrv2 Control,Motor neuron axon projection area
+20220909_Nrv2_GFP_GD_L1_S3L_C1.tif,2.919,Nrv2>Lac RNAi,Glial projection area
+20220909_Nrv2_GFP_GD_L1_S3L_C3.tif,189.804,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L1_S3R_C1.tif,16.997,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L1_S3R_C3.tif,508.652,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L1_S4L_C1.tif,16.807,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L1_S4L_C3.tif,153.806,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L1_S5L_C1.tif,0,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L1_S5L_C3.tif,172.836,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L2_S2L_C1.tif,9.73,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L2_S2L_C3.tif,320.846,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L2_S3L_C1.tif,24.433,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L2_S3L_C3.tif,288.145,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L2_S5L_C1.tif,8.264,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L2_S5L_C3.tif,279.488,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L2_S5R_C1.tif,0,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L2_S5R_C3.tif,176.157,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L3_S2L_C1.tif,12.806,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L3_S2L_C3.tif,315.823,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L3_S3R_C1.tif,12.231,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L3_S3R_C3.tif,250.065,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L3_S5L_C1.tif,2.214,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L3_S5L_C3.tif,194.528,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L3_S5R_C1.tif,0,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L3_S5R_C3.tif,238.928,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L4_S2R_C1.tif,5.163,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L4_S2R_C3.tif,330.048,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L4_S3R_C1.tif,17.775,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L4_S3R_C3.tif,349.28499999999997,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L4_S4R_C1.tif,0,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L4_S4R_C3.tif,201.748,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L5_S2L_C1.tif,0,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L5_S2L_C3.tif,370.988,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L5_S2R_C1.tif,0,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L5_S2R_C3.tif,200.181,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L5_S3R_C1.tif,4.086,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L5_S3R_C3.tif,321.201,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L5_S4L_C1.tif,16.177,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L5_S4L_C3.tif,319.882,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L6_S2R_C1.tif,20.394,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L6_S2R_C3.tif,261.805,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L6_S3R_C1.tif,6.376,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L6_S3R_C3.tif,320.573,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L6_S4L_C1.tif,33.927,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L6_S4L_C3.tif,122.956,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L6_S4R_C1.tif,0,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L6_S4R_C3.tif,130.507,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221026_Nrv2_GFP_GD_L6_S5R_C1.tif,0,Nrv2>Lac RNAi,Glial projection area
+20221026_Nrv2_GFP_GD_L6_S5R_C3.tif,106.148,Nrv2>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L1_S2L_C1.tif,188.038,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L1_S2L_C3.tif,548.519,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L1_S2R_C1.tif,172.257,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L1_S2R_C3.tif,462.18,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L1_S3L_C1.tif,82.734,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L1_S3L_C3.tif,224.985,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L1_S3R_C1.tif,49.086,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L1_S3R_C3.tif,203.848,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L1_S4L_C1.tif,106.322,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L1_S4L_C3.tif,182.414,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L1_S5L_C1.tif,21.898000000000003,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L1_S5L_C3.tif,139.518,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L2_S2L_C1.tif,179.567,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L2_S2L_C3.tif,536.943,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L2_S2R_C1.tif,199.044,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L2_S2R_C3.tif,428.267,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L2_S3L_C1.tif,129.61,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L2_S3L_C3.tif,347.316,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L2_S3R_C1.tif,37.205,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L2_S3R_C3.tif,290.898,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L2_S4R_C1.tif,53.679,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L2_S4R_C3.tif,337.41200000000003,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L2_S5L_C1.tif,77.119,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L2_S5L_C3.tif,228.906,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L3_S2L_C1.tif,326.026,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L3_S2L_C3.tif,682.243,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L3_S3L_C1.tif,126.738,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L3_S3L_C3.tif,362.949,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L3_S4R_C1.tif,40.454,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L3_S4R_C3.tif,289.941,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L4_S2L_C1.tif,263.576,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L4_S2L_C3.tif,336.572,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L4_S2R_C1.tif,185.769,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L4_S2R_C3.tif,282.078,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L4_S3L_C1.tif,93.715,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L4_S3L_C3.tif,349.639,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L4_S5R_C1.tif,123.7,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L4_S5R_C3.tif,309.164,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L5_S3L_C1.tif,178.532,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L5_S3L_C3.tif,412.221,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L5_S3R_C1.tif,164.729,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L5_S3R_C3.tif,292.34000000000003,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L5_S4L_C1.tif,152.751,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L5_S4L_C3.tif,310.74,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L5_S5L_C1.tif,47.578,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L5_S5L_C3.tif,283.223,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L5_S5R_C1.tif,95.177,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L5_S5R_C3.tif,219.561,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L6_S2L_C1.tif,138.554,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L6_S2L_C3.tif,466.774,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L6_S3L_C1.tif,161.56,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L6_S3L_C3.tif,196.668,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L6_S4R_C1.tif,81.462,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L6_S4R_C3.tif,345.018,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_CTRL_L6_S5R_C1.tif,59.953,Repo Control,Glial projection area
+20221104_Repo_GFP_CTRL_L6_S5R_C3.tif,222.087,Repo Control,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L1_S2L_C1.tif,245.223,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L1_S2L_C3.tif,252.394,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L1_S3L_C1.tif,131.04700000000003,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L1_S3L_C3.tif,171.952,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L1_S3R_C1.tif,85.695,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L1_S3R_C3.tif,150.756,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L1_S4L_C1.tif,126.856,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L1_S4L_C3.tif,219.645,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L1_S5L_C1.tif,35.638,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L1_S5L_C3.tif,141.25400000000002,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L2_S2L_C1.tif,328.663,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L2_S2L_C3.tif,251.252,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L2_S2R_C1.tif,228.81300000000002,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L2_S2R_C3.tif,244.814,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L2_S4L_C1.tif,127.638,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L2_S4L_C3.tif,181.659,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L2_S4R_C1.tif,189.597,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L2_S4R_C3.tif,234.885,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L3_S3L_C1.tif,116.982,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L3_S3L_C3.tif,207.706,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L3_S3R_C1.tif,126.53,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L3_S3R_C3.tif,264.469,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L3_S4R_C1.tif,89.684,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L3_S4R_C3.tif,199.927,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L3_S5L_C1.tif,114.88600000000001,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L3_S5L_C3.tif,213.16000000000003,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L4_S2L_C1.tif,119.318,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L4_S2L_C3.tif,350.506,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L4_S2R_C1.tif,201.64600000000002,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L4_S2R_C3.tif,185.536,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L4_S3R_C1.tif,81.209,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L4_S3R_C3.tif,319.004,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L5_S2R_C1.tif,236.236,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L5_S2R_C3.tif,308.34,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L5_S3L_C1.tif,89.021,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L5_S3L_C3.tif,150.656,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L5_S3R_C1.tif,106.88,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L5_S3R_C3.tif,189.175,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L5_S5L_C1.tif,23.973,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L5_S5L_C3.tif,114.29,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L6_S2R_C1.tif,207.845,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L6_S2R_C3.tif,339.96500000000003,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L6_S3R_C1.tif,110.40899999999999,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L6_S3R_C3.tif,139.86499999999998,Repo>Lac RNAi,Motor neuron axon projection area
+20221104_Repo_GFP_GD_L6_S5L_C1.tif,68.732,Repo>Lac RNAi,Glial projection area
+20221104_Repo_GFP_GD_L6_S5L_C3.tif,165.763,Repo>Lac RNAi,Motor neuron axon projection area
