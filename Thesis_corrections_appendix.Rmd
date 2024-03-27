@@ -1,0 +1,290 @@
+---
+title: "Thesis_corrections_appendix"
+output: html_document
+date: "2024-01-21"
+editor_options: 
+  chunk_output_type: console
+---
+
+## Libraries
+```{r}
+library(tidyverse)
+library(rstatix)
+library(patchwork)
+library(furrr)
+library(colorspace)
+library(ggpubr)
+library(ggplot2)
+library(ggbeeswarm)
+library(ggforce)
+```
+
+## Read files in
+```{r}
+Area_indiv <- read_csv("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis_1st_submission/Thesis-Scripts/Data/CH4_KStim_areas/")
+```
+
+## Set colour
+```{r}
+ocean = c('#BBDED6','#61C0BF')
+```
+
+## Filtere
+```{r}
+filtered <- Area_indiv %>% filter(condition == "Control"|condition == "sdk RNAi")
+```
+
+## Plot - display
+```{r}
+Area_indiv$condition <- factor(Area_indiv$condition, levels=c("Control", "CG42342 RNAi"))
+
+ggplot(Area_indiv, aes(x=condition, y=sum_Area, fill = condition)) + 
+  geom_violin(color = NA, trim = FALSE) +
+  geom_pointrange(stat = "summary", colour = "#ff7251") +
+  geom_quasirandom(width = 0.20, size = 0.6) +
+  facet_wrap(~ channel) + 
+  theme_bw() +
+  theme(legend.position = "none") +
+  scale_fill_manual(values=ocean) +
+  stat_compare_means(comparisons = list(c("Control", "CG42342 RNAi")), method = "t.test", label = 'p.signif') +
+  ggtitle("Comparison of glial and neuronal areas for CG42342 RNAi") +
+  xlab("Condition") + ylab(expression(paste("Area (",mu, m^2,")",sep="")))
+
+ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis_final_submission/Figures/CG42342_RNAi_dev.pdf",
+       width = 10 * 0.5, height = 8 * 0.5,
+       device = cairo_pdf)
+```
+
+# Calculate ratios
+```{r}
+ratios <- Area_indiv %>% mutate(image_id = str_remove(Label, "_C[:digit:].tif")) %>%
+  dplyr::select(-Label) %>%
+  dplyr::select(-1) %>%
+  pivot_wider(values_from = sum_Area, names_from = channel)%>%
+  mutate(ratio = Glia/HRP)
+```
+
+# Ratios - get statistics
+```{r}
+stats_ratios <- ratios %>%
+  wilcox_test(ratio ~ condition) %>%
+  add_significance()
+```
+
+# Plot ratios
+```{r}
+ratios$condition<- factor(ratios$condition, levels = c("Control", "CG42342 RNAi"))
+beach = c('#ffca7b','#ffedbf')
+
+ggplot(ratios, aes(x=condition, y=ratio, fill = condition)) +
+  geom_violin(color = NA, trim = FALSE) +
+  geom_pointrange(stat = "summary", colour = '#61C0BF') +
+  geom_quasirandom(width = 0.20) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  scale_fill_manual(values=beach) +
+  stat_compare_means(comparisons = list(c("Control", "CG42342 RNAi")), method = "wilcox.test", label = 'p.signif') +
+  ggtitle("Comparison of glial to neuronal area ratio for CG42342 RNAi") +
+  xlab("Condition") + ylab("Glial area/neuron area")
+  
+ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis_final_submission/Figures/CG42342_RNAi_dev_ratios.pdf",
+       width = 10 * 0.55, height = 8 * 0.55,
+       device = cairo_pdf)
+```
+
+```{r}
+# Load required libraries
+library(tidyverse)
+
+# Set the working directory to the folder containing CSV files
+setwd("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis_1st_submission/Thesis-Scripts/Data/CH4_KStim_boutons/")
+
+# List all CSV files in the directory
+all_files <- list.files(pattern = "\\.csv$")
+
+# Initialize an empty list to store modified datasets
+modified_datasets <- list()
+
+# Specify the files you want to exclude
+exclude_files <- c("shot_nrv2_cold_super_boutons.csv", "sdk_CG42342_all.csv")
+
+# Filter out the files to exclude
+files_to_read <- setdiff(all_files, exclude_files)
+
+# Loop through each CSV file
+for (file in files_to_read) {
+  # Read CSV file
+  data <- read.csv(file)
+  
+  # Add a column "filename" with the name of the CSV file (without .csv)
+  data$filename <- gsub("\\.csv$", "", file)
+  
+  # Select only required columns
+  data <- data %>%
+    select(filename, Set, Boutons)
+  
+  # Label "Control" as "Control" and other conditions as "RNAi"
+  data$Set <- ifelse(data$Set == "Control", "Control", "RNAi")
+  
+  # Store the modified dataset in the list
+  modified_datasets[[file]] <- data
+}
+```
+
+# Files with multiple genotypes
+```{r}
+sdk_CG42342 <- read_csv("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis_1st_submission/Thesis-Scripts/Data/CH4_KStim_boutons/sdk_CG42342_all.csv")
+```
+
+```{r}
+sdk<- sdk_CG42342 %>%
+  filter(Set != "CG42342")
+
+sdk$filename <- "sdk_RNAi"
+
+sdk <- sdk %>%
+  select(filename, Set, Boutons)
+
+sdk$Set <- ifelse(sdk$Set == "Control", "Control", "RNAi")
+file = "sdk_RNAi"
+modified_datasets[[file]] <- sdk
+```
+
+```{r}
+CG42342 <- sdk_CG42342 %>%
+  filter(Set != "sdk")
+
+CG42342$filename <- "CG42342_RNAi"
+
+CG42342 <- CG42342 %>%
+  select(filename, Set, Boutons)
+
+CG42342$Set <- ifelse(CG42342$Set == "Control", "Control", "RNAi")
+
+file = "CG42342_RNAi"
+modified_datasets[[file]] <- CG42342
+```
+
+```{r}
+nrv2_cold_shot <- read_csv("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis_1st_submission/Thesis-Scripts/Data/CH4_KStim_boutons/shot_nrv2_cold_super_boutons.csv")
+
+shot <- nrv2_cold_shot %>%
+  filter(Set != "nrv2" & Set != "cold")
+
+shot$filename <- "shot_RNAi"
+
+shot <- shot %>%
+  select(filename, Set, Boutons)
+
+shot$Set <- ifelse(shot$Set == "Control", "Control", "RNAi")
+file = "shot_RNAi"
+modified_datasets[[file]] <- shot
+```
+
+```{r}
+nrv2 <- nrv2_cold_shot %>%
+  filter(Set != "shot" & Set != "cold")
+
+nrv2$filename <- "nrv2_RNAi"
+
+nrv2 <- nrv2 %>%
+  select(filename, Set, Boutons)
+
+nrv2$Set <- ifelse(nrv2$Set == "Control", "Control", "RNAi")
+file = "nrv2_RNAi"
+modified_datasets[[file]] <- nrv2
+```
+
+```{r}
+cold <- nrv2_cold_shot %>%
+  filter(Set != "shot" & Set != "nrv2")
+
+cold$filename <- "cold_RNAi"
+
+cold <- cold %>%
+  select(filename, Set, Boutons)
+
+cold$Set <- ifelse(cold$Set == "Control", "Control", "RNAi")
+
+file = "cold_RNAi"
+modified_datasets[[file]] <- cold
+```
+
+```{r}
+inferno = c("#27123E","#55125D")
+```
+
+```{r}
+library(ggplot2)
+library(purrr)
+
+# Apply ggplot to each dataset in modified_datasets
+plots_list <- map(modified_datasets, ~{
+  ggplot(.x, aes(x=Set, y=Boutons, fill = Set)) +
+    geom_violin(color = NA, trim = FALSE, alpha = 0.2, scale = "width") +
+    geom_pointrange(stat = "summary", colour = "#F36E35", size = 0.05) +
+    geom_quasirandom(width = 0.20, alpha = 0.7, size = 1, stroke = 0) +
+    scale_y_continuous(limits = c(0, 45)) +
+    theme_bw() +
+    theme(text = element_text(size = 10),
+          legend.position = "none",
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank()) +
+    scale_fill_manual(values=inferno) +
+    stat_compare_means(comparisons = list(c("Control", "RNAi")), method = "wilcox.test", label = 'p.signif') +
+    ggtitle(.x$filename)
+})
+```
+
+```{r}
+# Combine all the plots into one using cowplot::plot_grid
+library(cowplot)
+final_plot <- plot_grid(plotlist = plots_list, ncol = 3, nrow = 6)
+
+# Display the final combined plot
+print(final_plot)
+
+ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis_final_submission/Figures/Boutons_plot.pdf",
+       width = 8.3, height = 11.7,
+       device = cairo_pdf)
+```
+
+```{r}
+colours <- c(sequential_hcl(n = 10, palette = "Inferno", rev = FALSE))
+#"#040404" "#27123E" "#55125D" "#851170" "#B12275" "#D74366" "#F36E35" "#F7A026" "#F9CE5A" "#FFFE9E"
+```
+
+```{r}
+dataframe <- read_csv("Data/brains_VNCs.csv")
+```
+
+```{r}
+clean_VNCs <- dataframe %>%
+  mutate(condition = case_when(
+    str_detect(Label, "Control") ~ "Control",
+    str_detect(Label, "cold") ~ "cold RNAi",
+    str_detect(Label, "lac") ~ "Lac RNAi",
+    str_detect(Label, "Vha55") ~ "Vha55 RNAi"))
+```
+
+```{r}
+inferno = c("#27123E", "#55125D", "#851170", "#B12275")
+clean_VNCs$condition<- factor(clean_VNCs$condition, levels = c("Control", "Vha55 RNAi", "Lac RNAi", "cold RNAi"))
+
+ggplot(clean_VNCs, aes(x=condition, y=Length, fill = condition)) +
+  geom_violin(color = NA, trim = FALSE, alpha = 0.7) +
+  geom_pointrange(stat = "summary", colour = "#F9CE5A") +
+  geom_quasirandom(width = 0.20) +
+  theme_bw() +
+  scale_y_continuous(limits = c(250, 660)) +
+  scale_fill_manual(values=inferno) +
+  theme(legend.position = "none") +
+  stat_compare_means(comparisons = list(c("Control", "Lac RNAi"), c("Control", "Vha55 RNAi"), c("Control", "cold RNAi")), method = "wilcox.test", label = "p.signif") +
+  labs(x = NULL,
+       title = "VNC length quantification",
+       y = expression(paste("VNC length in ", mu, "m",sep="")))
+
+ggsave("/Users/daliagala/Library/CloudStorage/OneDrive-Nexus365/Thesis/Thesis_final_submission/Figures/VNC_len_quant.pdf",
+       width = 10 * 0.55, height = 8 * 0.55,
+       device = cairo_pdf)
+```

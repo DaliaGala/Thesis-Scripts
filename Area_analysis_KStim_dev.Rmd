@@ -13,6 +13,7 @@ library(rstatix)
 library(patchwork)
 library(furrr)
 library(colorspace)
+library(ggpubr)
 ```
 
 ## Read files in - KStim
@@ -119,7 +120,7 @@ Kstim_area_statistics <- Kstim_area_raw %>%
 ```{r}
 id_change <- tibble(
   input = unique(dev_area_statistics$condition),
-  ens99_name = c("Gli", "α-Cat", "Atpα", "CG42342", "Gs2", "kst", "Lac", "lost", "Nrg", "nrv2", "Pdi", "sdk", "cold", "shot", "CG1648", "Flo2", "Vha55"))
+  ens99_name = c("Gli", "α-Cat", "Atpα", "CG42342", "Gs2", "kst", "lost", "Nrg", "nrv2", "Pdi", "sdk", "Lac", "cold", "shot", "CG1648", "Flo2", "Vha55"))
 ```
 
 ## Rename genes for KStim areas
@@ -150,7 +151,7 @@ area_statistics_for_plotting <- Kstim_area_statistics %>%
 
 ## Save a csv
 ```{r}
-write_csv(area_statistics_for_plotting, "./Output/KStim_analysis/KStim_area_summary_statistics_repeats_tidy_p_adj.csv")
+write_csv(area_statistics_for_plotting, "./Output/KStim_analysis/Kstim_area_summary_statistics_tidy.csv")
 ```
 
 ## Alternatively read in an old csv
@@ -161,7 +162,7 @@ area_statistics_for_plotting <- read_csv("./Output/Kstim_analysis/Areas_output/K
 ## Set specifics and plot
 ```{r}
 # For dev areas
-# colours <- c(sequential_hcl(n = 7, palette = "Inferno", rev = FALSE)[3:5], "gray70")
+colours <- c(sequential_hcl(n = 7, palette = "Inferno", rev = FALSE)[2:5], "gray70")
 # For Kstim areas
 # colours <- c(sequential_hcl(n = 7, palette = "Inferno", rev = FALSE)[2:5], "gray70")
 
@@ -175,10 +176,10 @@ area_statistics_for_plotting %>%
   geom_segment(aes(xend = ens99_name, y = 1, yend = foldchange), colour = "gray50", size = 0.3) + 
   geom_point(size = 1.5) + 
   geom_hline(yintercept = 1, linetype = "dashed", colour = "gray70", size = 0.2) +
-  coord_flip(ylim = c(0.5, 1.7)) +
+  coord_flip(ylim = c(0.5, 2)) +
   labs(
     x = "", 
-    y = "Average foldchange over Control",
+    y = "Average foldchange over stimulated Control",
     colour = "P-value"
   ) + 
   scale_colour_manual(values = colours) + 
@@ -193,8 +194,53 @@ area_statistics_for_plotting %>%
 
 dev_plot
 
-## Save figure
-# ggsave("./Output/Plots/phenotype_plot_kstim_areas_repeats_p_adj.pdf",
-#        width = 11 * 0.3937, height = 5 * 0.38937,
-#        device = cairo_pdf)
+# Save figure
+ggsave("./Output/Plots/phenotype_plot_Kstim_areas_3102023.pdf",
+       width = 11 * 0.3937, height = 5 * 0.38937,
+       device = cairo_pdf)
 ```
+
+```{r}
+lac <- read_csv("./Data/CH4_KStim_areas/Kstim_areas_lac.csv")
+```
+
+```{r}
+areas <- lac %>%
+  filter(.$channel == "HRP") %>%
+  group_by(day) %>%
+  count(condition)
+```
+
+```{r}
+lac_areas <-
+  lac%>%
+  filter(day == 2) %>%
+  mutate(day = NULL)
+```
+
+
+```{r}
+lac %>%
+  filter(.$channel == "HRP") %>%
+  ggplot(aes(x = condition, y = sum_Area)) +
+  geom_boxplot()+
+  stat_compare_means(comparisons = list(c("Control", "lac")), method="wilcox.test", label="p.signif")+
+  facet_wrap(~day)
+```
+
+```{r}
+lac_btns <- read_csv("./Data/CH4_KStim_boutons/CG42342_lac_all.csv")
+```
+
+```{r}
+lac_btns <-
+  lac_btns%>%
+  filter(Set != "CG42342") %>%
+  filter(Replicate == 5) %>%
+  mutate(Replicate = NULL)
+```
+
+```{r}
+write_csv(lac_areas, "./Data/CH4_KStim_areas/Kstim_areas_lac_VDRC.csv")
+```
+

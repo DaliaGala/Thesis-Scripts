@@ -52,7 +52,7 @@ get_summary_results <- function(list_of_df) {
 ## Genes with single repilicates
 ```{r}
 kstim_raw <- list.files(
-    "./Data/KStim_boutons/",
+    "./Data/CH4_KStim_boutons/",
     pattern = "*.csv",
     full.names = TRUE
   ) %>%
@@ -83,7 +83,7 @@ kstim_wilcox_df <- kstim_statistics %>%
 ```{r}
 id_change <- tibble(
   input = kstim_wilcox_df$condition,
-  ens99_name = c("α-Cat", "Atpα", "CG1648", "Flo2", "Gli", "Gs2", "kst", "Lac", "lost", "Nrg", "sdk", "CG42342", "Pdi", "cold", "nrv2", "shot", "Vha55")
+  ens99_name = c("α-Cat", "Atpα", "CG1648", "Flo2", "Gli", "Gs2", "kst", "Lac", "lost", "Nrg", "Pdi", "CG42342", "sdk", "cold", "nrv2", "shot", "Vha55")
 )
 ```
 
@@ -110,7 +110,7 @@ write_csv(df_for_plotting, "./Output/Kstim_analysis/Boutons_output/kstim_boutons
 
 ## Set specifics and plot
 ```{r}
-colours <- c(sequential_hcl(n = 5, palette = "Inferno", rev = FALSE)[4], sequential_hcl(n = 5, palette = "Inferno", rev = FALSE)[3], "gray70")
+colours <- c(sequential_hcl(n = 5, palette = "Inferno", rev = FALSE)[2:4], "gray70")
 
 df_for_plotting %>%
   ggplot(aes(x = reorder(ens99_name, -foldchange), y = log2foldchange, fill = p_legend)) + 
@@ -120,7 +120,7 @@ df_for_plotting %>%
   coord_cartesian(ylim = c(-1.2, 1.8)) +
   labs(
     x = "", 
-    y = "log2 Foldchange over Control",
+    y = "log2 Foldchange over stimulated Control",
     fill = "P-value"
   ) + 
   scale_fill_manual(values = colours) +
@@ -132,7 +132,7 @@ df_for_plotting %>%
     ) +
   guides(fill = guide_legend(keywidth = 0.3, keyheight = 0.3))
 
-ggsave("./Output/Plots/phenotype_boutons_plot_kstim.pdf", 
+ggsave("./Output/Plots/phenotype_boutons_plot_kstim.pdf",
        width = 10.2 * 0.5, height = 5.5 * 0.55,
        device = cairo_pdf)
 ```

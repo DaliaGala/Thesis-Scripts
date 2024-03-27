@@ -40,12 +40,13 @@ df <- glia_lac_data %>%
 
 ## Get means
 ```{r}
-means <- df %>%
-    group_by(channel) %>%
-    summarise(
-        mean = mean(sum_Area)
-    ) %>%
-    ungroup()
+means_and_sem <- df %>%
+  group_by(channel) %>%
+  summarise(
+    mean = mean(sum_Area, na.rm = TRUE),
+    SEM = sd(sum_Area, na.rm = TRUE) / sqrt(n())
+  ) %>%
+  ungroup()
 
 folchange <- means$mean[1] / means$mean[2]
 ```
